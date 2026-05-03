@@ -245,14 +245,14 @@ export function OverviewClient() {
         <StatCard
           title="Tokens Used"
           value={formatTokens(computed.totalTokens)}
-          description={`${formatTokens(computed.totalCacheReadTokens)} from cache`}
+          description={`${formatTokens(computed.totalCacheReadTokens)} from cache · ~¾ word per token`}
           sparkData={getTokenSpark(tokensByDate)}
           accentColor={inputBlue}
         />
         <StatCard
           title="Estimated Cost"
           value={`$${computed.totalCost.toFixed(2)}`}
-          description={`$${computed.totalCacheSavings.toFixed(2)} saved via cache`}
+          description={`$${computed.totalCacheSavings.toFixed(2)} saved via prompt cache`}
           sparkData={getTokenSpark(tokensByDate)}
           accentColor="#34d399"
         />
@@ -335,7 +335,12 @@ export function OverviewClient() {
       <Card>
         <CardHeader className="pb-3">
           <CardTitle>Token Breakdown</CardTitle>
-          <CardDescription>Distribution across token types (all time)</CardDescription>
+          <CardDescription>
+            All-time distribution — <span className="font-medium">Input</span>: tokens you send &nbsp;·&nbsp;
+            <span className="font-medium">Output</span>: Claude&apos;s response &nbsp;·&nbsp;
+            <span className="font-medium">Cache Write</span>: context stored (1st time, +25%) &nbsp;·&nbsp;
+            <span className="font-medium">Cache Read</span>: reused from cache (10× cheaper)
+          </CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {totalTokens > 0 ? (

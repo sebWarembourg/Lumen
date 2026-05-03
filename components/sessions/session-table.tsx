@@ -29,7 +29,7 @@ function SortHeader({
   return (
     <button
       onClick={() => onSort(k)}
-      className={`text-left text-[12px] font-bold uppercase tracking-wider whitespace-nowrap hover:text-foreground transition-colors ${active ? 'text-primary' : 'text-muted-foreground'}`}
+      className={`text-left text-xs font-semibold uppercase tracking-wider whitespace-nowrap hover:text-foreground transition-colors ${active ? 'text-primary' : 'text-muted-foreground'}`}
     >
       {label} {active ? (sortDir === 'desc' ? '↓' : '↑') : ''}
     </button>
@@ -135,9 +135,9 @@ export function SessionTable({ sessions }: Props) {
           placeholder="Search project or prompt..."
           value={search}
           onChange={e => { setSearch(e.target.value); setPage(1); setFocusedIdx(null) }}
-          className="bg-muted border border-border rounded px-2 py-1 text-[13px] text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/50 w-52"
+          className="bg-muted border border-border rounded px-2 py-1 text-sm text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/50 w-52"
         />
-        <label className="flex items-center gap-1.5 text-[13px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
           <input
             type="checkbox"
             checked={filterCompacted}
@@ -146,7 +146,7 @@ export function SessionTable({ sessions }: Props) {
           />
           ⚡ compacted
         </label>
-        <label className="flex items-center gap-1.5 text-[13px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
           <input
             type="checkbox"
             checked={filterAgent}
@@ -155,7 +155,7 @@ export function SessionTable({ sessions }: Props) {
           />
           🤖 agent
         </label>
-        <label className="flex items-center gap-1.5 text-[13px] text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
+        <label className="flex items-center gap-1.5 text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors">
           <input
             type="checkbox"
             checked={filterMcp}
@@ -164,7 +164,7 @@ export function SessionTable({ sessions }: Props) {
           />
           🔌 mcp
         </label>
-        <span className="ml-auto text-[13px] text-muted-foreground">
+        <span className="ml-auto text-sm text-muted-foreground">
           {filtered.length} sessions
         </span>
       </div>
@@ -172,16 +172,16 @@ export function SessionTable({ sessions }: Props) {
       {/* Table */}
       <div className="border border-border rounded overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-[13px]">
+          <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border bg-muted">
                 <th className="px-3 py-2 text-left"><SortHeader label="Date" k="start_time" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
-                <th className="px-3 py-2 text-left"><span className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Project</span></th>
+                <th className="px-3 py-2 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Project</span></th>
                 <th className="px-3 py-2 text-right"><SortHeader label="Dur" k="duration_minutes" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
                 <th className="px-3 py-2 text-right"><SortHeader label="Msgs" k="total_messages" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
                 <th className="px-3 py-2 text-right"><SortHeader label="Tools" k="tool_calls" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
                 <th className="px-3 py-2 text-right"><SortHeader label="Cost" k="estimated_cost" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} /></th>
-                <th className="px-3 py-2 text-left"><span className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">Flags</span></th>
+                <th className="px-3 py-2 text-left"><span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Flags</span></th>
               </tr>
             </thead>
             <tbody>
@@ -213,21 +213,21 @@ export function SessionTable({ sessions }: Props) {
                         {projectName}
                       </Link>
                       {s.first_prompt && (
-                        <p className="text-muted-foreground/60 truncate text-[12px]">
+                        <p className="text-muted-foreground/60 truncate text-xs">
                           {s.first_prompt.slice(0, 60)}
                         </p>
                       )}
                     </td>
-                    <td className="px-3 py-2 text-right text-muted-foreground whitespace-nowrap">
+                    <td className="px-3 py-2 text-right tabular-nums text-muted-foreground whitespace-nowrap">
                       {formatDuration(s.duration_minutes ?? 0)}
                     </td>
-                    <td className="px-3 py-2 text-right text-muted-foreground">
+                    <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
                       {totalMsgs.toLocaleString()}
                     </td>
-                    <td className="px-3 py-2 text-right text-muted-foreground">
+                    <td className="px-3 py-2 text-right tabular-nums text-muted-foreground">
                       {totalTools.toLocaleString()}
                     </td>
-                    <td className="px-3 py-2 text-right font-mono text-primary">
+                    <td className="px-3 py-2 text-right tabular-nums font-mono text-primary">
                       {formatCost(s.estimated_cost)}
                     </td>
                     <td className="px-3 py-2">
@@ -245,7 +245,7 @@ export function SessionTable({ sessions }: Props) {
               })}
               {paginated.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground/50 text-[13px]">
+                  <td colSpan={7} className="px-3 py-8 text-center text-muted-foreground/50 text-sm">
                     No sessions match filters
                   </td>
                 </tr>
@@ -257,7 +257,7 @@ export function SessionTable({ sessions }: Props) {
 
       {/* Pagination */}
       {totalPages > 1 && (
-        <div className="flex items-center justify-between text-[13px]">
+        <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">
             Page {page} of {totalPages} · {sorted.length} sessions
           </span>

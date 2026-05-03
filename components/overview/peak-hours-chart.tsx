@@ -23,7 +23,7 @@ function CustomTooltip({ active, payload, label }: any) {
   const period = hour < 12 ? 'AM' : 'PM'
   const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour
   return (
-    <div className="bg-card border border-border rounded-lg px-3 py-2 text-[13px]">
+    <div className="bg-card border border-border rounded-lg px-3 py-2 text-xs">
       <p className="text-muted-foreground">{h12}:00 {period}</p>
       <p className="text-primary font-bold">{payload[0].value} sessions</p>
     </div>
@@ -51,7 +51,7 @@ export function PeakHoursChart({ hourCounts }: Props) {
   return (
     <div>
       <ResponsiveContainer width="100%" height={160}>
-        <BarChart data={data} margin={{ top: 4, right: 4, left: -16, bottom: 0 }}>
+        <BarChart data={data} margin={{ top: 4, right: 4, left: -4, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
           <XAxis
             dataKey="hour"
@@ -79,7 +79,7 @@ export function PeakHoursChart({ hourCounts }: Props) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
-      <p className="text-[11px] font-mono text-muted-foreground/60 mt-1">
+      <p className="text-xs font-mono text-muted-foreground/60 mt-1">
         top 3 peak hours highlighted
       </p>
     </div>

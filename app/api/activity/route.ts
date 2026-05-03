@@ -4,6 +4,67 @@ import type { DailyActivity, SessionMeta } from '@/types/claude'
 
 export const dynamic = 'force-dynamic'
 
+export interface DisconnectionStats {
+  current_rest_streak: number
+  rest_rate_30d: number
+  rest_days_30d: number
+  longest_break: number
+  gaps: Array<{ from: string; to: string; days: number }>
+}
+
+function computeDisconnection(activeDates: Set<string>): DisconnectionStats {
+  const today = new Date().toISOString().slice(0, 10)
+
+  // Consecutive rest days counting back from today
+  let currentRestStreak = 0
+  const cursor = new Date(today)
+  while (!activeDates.has(cursor.toISOString().slice(0, 10))) {
+    currentRestStreak++
+    cursor.setDate(cursor.getDate() - 1)
+    if (currentRestStreak > 730) break
+  }
+
+  // Rest days in last 30 days
+  let restDays30 = 0
+  for (let i = 0; i < 30; i++) {
+    const d = new Date()
+    d.setDate(d.getDate() - i)
+    if (!activeDates.has(d.toISOString().slice(0, 10))) restDays30++
+  }
+
+  // Gaps between consecutive active dates
+  const sorted = [...activeDates].sort()
+  const gaps: DisconnectionStats['gaps'] = []
+  for (let i = 1; i < sorted.length; i++) {
+    const prev = new Date(sorted[i - 1])
+    const curr = new Date(sorted[i])
+    const diffDays = Math.round((curr.getTime() - prev.getTime()) / 86_400_000)
+    if (diffDays > 1) {
+      const gapFrom = new Date(prev)
+      gapFrom.setDate(gapFrom.getDate() + 1)
+      const gapTo = new Date(curr)
+      gapTo.setDate(gapTo.getDate() - 1)
+      gaps.push({
+        from: gapFrom.toISOString().slice(0, 10),
+        to: gapTo.toISOString().slice(0, 10),
+        days: diffDays - 1,
+      })
+    }
+  }
+
+  const longestBreak = gaps.length > 0
+    ? Math.max(...gaps.map(g => g.days))
+    : currentRestStreak
+
+  return {
+    current_rest_streak: currentRestStreak,
+    rest_rate_30d: Math.round((restDays30 / 30) * 100),
+    rest_days_30d: restDays30,
+    longest_break: longestBreak,
+    gaps,
+  }
+}
+
 function computeStreaks(dates: Set<string>): { current: number; longest: number } {
   const sorted = [...dates].sort()
   if (sorted.length === 0) return { current: 0, longest: 0 }
@@ -112,6 +173,7 @@ export async function GET() {
   }
 
   const streaks = computeStreaks(activeDates)
+  const disconnection = computeDisconnection(activeDates)
 
   // Most active day
   let mostActiveDay = ''
@@ -131,6 +193,7 @@ export async function GET() {
       count,
     })),
     streaks,
+    disconnection,
     most_active_day: mostActiveDay,
     most_active_day_msgs: mostActiveMsgs,
     total_active_days: activeDates.size,

@@ -20,7 +20,9 @@ import {
 import {
   MessageSquare, Clock, DollarSign, GitBranch,
   Wrench, TrendingUp, AlertTriangle, Code2,
+  Zap, Droplet, Cloud,
 } from 'lucide-react'
+import { computeImpact, formatEnergy, formatWater, formatCo2 } from '@/lib/impact'
 
 const fetcher = (url: string) =>
   fetch(url).then(r => { if (!r.ok) throw new Error(`API error ${r.status}`); return r.json() })
@@ -86,6 +88,25 @@ export default function ProjectDetailPage() {
   const totalMsgs     = sessions.reduce((s, x) => s + (x.user_message_count ?? 0) + (x.assistant_message_count ?? 0), 0)
   const totalDuration = sessions.reduce((s, x) => s + (x.duration_minutes ?? 0), 0)
   const totalTokens   = sessions.reduce((s, x) => s + (x.input_tokens ?? 0) + (x.output_tokens ?? 0), 0)
+
+  // Impact (énergie, eau, CO₂) — same Opus-4-6 assumption as the cost calc
+  // in /api/projects (model per-session isn't tracked, Opus is worst-case upper bound).
+  const impact = sessions.reduce(
+    (acc, x) => {
+      const r = computeImpact('claude-opus-4-6', {
+        input: x.input_tokens ?? 0,
+        output: x.output_tokens ?? 0,
+        cacheWrite: x.cache_creation_input_tokens ?? 0,
+        cacheRead: x.cache_read_input_tokens ?? 0,
+      }, 'us')
+      return {
+        energy_wh: acc.energy_wh + r.energy_wh,
+        water_ml: acc.water_ml + r.water_ml,
+        co2_g: acc.co2_g + r.co2_g,
+      }
+    },
+    { energy_wh: 0, water_ml: 0, co2_g: 0 },
+  )
 
   const topTools = Object.entries(data.tool_counts ?? {})
     .sort(([, a], [, b]) => b - a).slice(0, 12)
@@ -171,6 +192,51 @@ export default function ProjectDetailPage() {
             </CardHeader>
             <CardContent>
               <p className="text-xs text-muted-foreground">All sessions</p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Impact stat cards — énergie, eau, CO₂ */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center gap-2">
+                <Zap className="w-4 h-4" /> Énergie
+              </CardDescription>
+              <CardTitle className="text-3xl font-bold tabular-nums font-mono text-[#f59e0b]">
+                {formatEnergy(impact.energy_wh)}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">Estimé sur base Opus · incl. PUE 1.14</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center gap-2">
+                <Droplet className="w-4 h-4" /> Eau
+              </CardDescription>
+              <CardTitle className="text-3xl font-bold tabular-nums font-mono text-[#60a5fa]">
+                {formatWater(impact.water_ml)}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">Refroidissement datacenter · WUE 1.8 L/kWh</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="pb-2">
+              <CardDescription className="flex items-center gap-2">
+                <Cloud className="w-4 h-4" /> CO₂
+              </CardDescription>
+              <CardTitle className="text-3xl font-bold tabular-nums font-mono text-[#dc2626]">
+                {formatCo2(impact.co2_g)}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-xs text-muted-foreground">Grid US (défaut) · ajuster dans /impact</p>
             </CardContent>
           </Card>
         </div>

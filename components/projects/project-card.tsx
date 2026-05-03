@@ -2,11 +2,12 @@
 
 import Link from 'next/link'
 import { formatCost, formatDuration, formatRelativeDate } from '@/lib/decode'
+import { formatEnergy, formatWater, formatCo2 } from '@/lib/impact'
 import { categoryColorMix, toolBarColor } from '@/lib/tool-categories'
 import type { ProjectSummary } from '@/types/claude'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Clock, MessageSquare, GitBranch, Plug, Bot } from 'lucide-react'
+import { Clock, MessageSquare, GitBranch, Plug, Bot, Zap, Droplet, Cloud } from 'lucide-react'
 
 const LANG_COLORS: Record<string, string> = {
   TypeScript:  'bg-blue-500/10 text-blue-700 dark:text-blue-400 border-blue-500/25',
@@ -66,30 +67,30 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
             <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors truncate leading-snug">
               {project.display_name}
             </h3>
-            <span className="text-[11px] text-muted-foreground/60 whitespace-nowrap shrink-0 mt-0.5">
+            <span className="text-xs text-muted-foreground/60 whitespace-nowrap shrink-0 mt-0.5">
               {formatRelativeDate(project.last_active)}
             </span>
           </div>
 
           {/* Path */}
-          <p className="text-[11px] text-muted-foreground/50 font-mono truncate -mt-1">
+          <p className="text-xs text-muted-foreground/50 font-mono truncate -mt-1">
             {project.project_path}
           </p>
 
           {/* Language + feature badges */}
           <div className="flex flex-wrap gap-1.5">
             {topLangs.map(([lang]) => (
-              <Badge key={lang} variant="outline" className={`text-[11px] px-1.5 py-0 h-5 ${langColor(lang)}`}>
+              <Badge key={lang} variant="outline" className={`text-xs px-1.5 py-0 h-5 ${langColor(lang)}`}>
                 {lang}
               </Badge>
             ))}
             {project.uses_mcp && (
-              <Badge variant="outline" className="text-[11px] px-1.5 py-0 h-5 bg-blue-500/10 text-blue-500 border-blue-500/20 gap-1">
+              <Badge variant="outline" className="text-xs px-1.5 py-0 h-5 bg-blue-500/10 text-blue-500 border-blue-500/20 gap-1">
                 <Plug className="w-2.5 h-2.5" /> MCP
               </Badge>
             )}
             {project.uses_task_agent && (
-              <Badge variant="outline" className="text-[11px] px-1.5 py-0 h-5 bg-purple-500/10 text-purple-500 border-purple-500/20 gap-1">
+              <Badge variant="outline" className="text-xs px-1.5 py-0 h-5 bg-purple-500/10 text-purple-500 border-purple-500/20 gap-1">
                 <Bot className="w-2.5 h-2.5" /> Agent
               </Badge>
             )}
@@ -104,14 +105,14 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
                   <Badge
                     key={b}
                     variant="outline"
-                    className="h-5 max-w-28 truncate border-border/50 px-1.5 py-0 font-mono text-[11px] text-muted-foreground/80"
+                    className="h-5 max-w-36 truncate border-border/50 px-1.5 py-0 font-mono text-xs text-muted-foreground/80"
                     title={b}
                   >
                     {b}
                   </Badge>
                 ))}
                 {project.branches.length > 3 && (
-                  <span className="self-center text-[11px] text-muted-foreground/45">
+                  <span className="self-center text-xs text-muted-foreground/45">
                     +{project.branches.length - 3}
                   </span>
                 )}
@@ -122,7 +123,7 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
 
         <CardContent className="px-4 pb-4 space-y-3">
           {/* Stats row */}
-          <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
+          <div className="flex items-center gap-3 text-xs text-muted-foreground">
             <span className="flex items-center gap-1">
               <MessageSquare className="w-3 h-3" />
               {project.session_count} sessions
@@ -148,7 +149,7 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
                 const color = toolBarColor(tool)
                 const width = Math.max(8, Math.round((count / maxToolCount) * 100))
                 return (
-                  <div key={tool} className="flex items-center gap-2 text-[11px]">
+                  <div key={tool} className="flex items-center gap-2 text-xs">
                     <span className="text-muted-foreground/50 w-16 truncate">{tool}</span>
                     <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                       <div
@@ -165,8 +166,24 @@ export function ProjectCard({ project }: { project: ProjectSummary }) {
 
           {/* Cost footer */}
           <div className="flex items-center justify-between pt-2 border-t border-border/30">
-            <span className="text-[11px] text-muted-foreground/50">Est. cost</span>
+            <span className="text-xs text-muted-foreground/50">Est. cost</span>
             <span className="text-sm font-bold text-primary tabular-nums">{formatCost(project.estimated_cost)}</span>
+          </div>
+
+          {/* Impact footer — energy / water / CO2 (US grid baseline) */}
+          <div className="grid grid-cols-3 gap-2">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70" title="Énergie estimée · baseline Opus 4.6 · PUE AWS 1.14">
+              <Zap className="w-3 h-3 shrink-0 text-[#f59e0b]" />
+              <span className="tabular-nums font-mono truncate">{formatEnergy(project.energy_wh ?? 0)}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70" title="Eau estimée · WUE 1.8 L/kWh">
+              <Droplet className="w-3 h-3 shrink-0 text-[#60a5fa]" />
+              <span className="tabular-nums font-mono truncate">{formatWater(project.water_ml ?? 0)}</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground/70" title="CO₂ estimé · grid US 0.287 kg/kWh">
+              <Cloud className="w-3 h-3 shrink-0 text-[#dc2626]" />
+              <span className="tabular-nums font-mono truncate">{formatCo2(project.co2_g ?? 0)}</span>
+            </div>
           </div>
         </CardContent>
       </Card>

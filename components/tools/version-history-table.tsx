@@ -8,11 +8,11 @@ interface Props {
 export function VersionHistoryTable({ versions }: Props) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-[13px] font-mono">
+      <table className="w-full text-sm font-mono tabular-nums">
         <thead>
           <tr className="border-b border-border">
             {['Version', 'Sessions', 'First Seen', 'Last Seen'].map(h => (
-              <th key={h} className={`py-2 text-[12px] font-bold text-muted-foreground uppercase tracking-wider ${h === 'Version' ? 'text-left' : 'text-right'}`}>{h}</th>
+              <th key={h} className={`py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider ${h === 'Version' ? 'text-left' : 'text-right'}`}>{h}</th>
             ))}
           </tr>
         </thead>

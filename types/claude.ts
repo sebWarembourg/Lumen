@@ -185,6 +185,12 @@ export interface ProjectSummary {
   git_commits: number
   git_pushes: number
   estimated_cost: number
+  /** Estimated energy consumption in watt-hours (US grid, Opus-4-6 baseline). */
+  energy_wh: number
+  /** Estimated water usage in millilitres (US grid baseline). */
+  water_ml: number
+  /** Estimated CO₂ emissions in grams (US grid baseline). */
+  co2_g: number
   input_tokens: number
   output_tokens: number
   languages: Record<string, number>
@@ -264,6 +270,40 @@ export interface CostAnalytics {
   models: ModelCostBreakdown[]
   daily: DailyCost[]
   by_project: ProjectCost[]
+}
+
+// ─── Impact Analytics ────────────────────────────────────────────────────────
+
+export interface ImpactBreakdown {
+  energy_wh: number
+  water_ml: number
+  co2_g: number
+}
+
+export interface ModelImpact extends ImpactBreakdown {
+  model: string
+  input_tokens: number
+  output_tokens: number
+  cache_read_tokens: number
+  cache_write_tokens: number
+}
+
+export interface DailyImpact extends ImpactBreakdown {
+  date: string
+}
+
+export interface TokenTypeImpact {
+  input: ImpactBreakdown
+  output: ImpactBreakdown
+  cache_read: ImpactBreakdown
+  cache_write: ImpactBreakdown
+}
+
+export interface ImpactAnalytics extends ImpactBreakdown {
+  region: 'us' | 'eu' | 'fr'
+  models: ModelImpact[]
+  daily: DailyImpact[]
+  by_token_type: TokenTypeImpact
 }
 
 // ─── History ──────────────────────────────────────────────────────────────────

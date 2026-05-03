@@ -17,12 +17,12 @@ export function CacheEfficiencyPanel({ models, totalSavings }: Props) {
 
   const pieData = [
     { name: 'Cache Read', value: totalCacheRead, color: '#34d399' },
-    { name: 'Direct Input', value: totalInput, color: 'var(--viz-sky)' },
+    { name: 'Direct Input', value: totalInput, color: '#60a5fa' },
   ]
 
   return (
     <div className="grid grid-cols-[1fr_160px] gap-4 items-start">
-      <div className="space-y-2 text-[13px]">
+      <div className="space-y-2 text-xs">
         <div className="flex items-center justify-between">
           <span className="text-muted-foreground">Cache hit rate</span>
           <span className="text-[#34d399] font-bold text-lg">{(hitRate * 100).toFixed(1)}%</span>
@@ -66,7 +66,7 @@ export function CacheEfficiencyPanel({ models, totalSavings }: Props) {
             ))}
           </Pie>
           <Tooltip
-            contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
+            contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 11 }}
             formatter={(val: number | undefined, name?: string) => [formatTokens(val ?? 0), name ?? '']}
           />
         </PieChart>

@@ -1,6 +1,6 @@
 import type { TurnUsage, ModelUsage } from '@/types/claude'
 
-interface ModelPricing {
+export interface ModelPricing {
   input: number
   output: number
   cacheWrite: number
@@ -32,6 +32,45 @@ export const PRICING: Record<string, ModelPricing> = {
     cacheWrite:   1.00 / 1_000_000,
     cacheRead:    0.08 / 1_000_000,
   },
+}
+
+/**
+ * Blended prices per token type, weighted by the real model mix from stats.modelUsage.
+ * Used when the per-session model isn't tracked at the aggregate layer — gives
+ * a realistic cost anchored in the user's Opus/Sonnet/Haiku ratios.
+ * Falls back to Opus-4-6 prices if modelUsage is empty / missing.
+ */
+export function blendedPricing(
+  modelUsage: Record<string, Partial<ModelUsage>> | undefined | null,
+): ModelPricing {
+  const totals = { input: 0, output: 0, cacheWrite: 0, cacheRead: 0 }
+  const weighted = { input: 0, output: 0, cacheWrite: 0, cacheRead: 0 }
+
+  for (const [model, u] of Object.entries(modelUsage ?? {})) {
+    const p = getPricing(model)
+    const iT = u.inputTokens ?? 0
+    const oT = u.outputTokens ?? 0
+    const cwT = u.cacheCreationInputTokens ?? 0
+    const crT = u.cacheReadInputTokens ?? 0
+
+    totals.input += iT
+    totals.output += oT
+    totals.cacheWrite += cwT
+    totals.cacheRead += crT
+
+    weighted.input += iT * p.input
+    weighted.output += oT * p.output
+    weighted.cacheWrite += cwT * p.cacheWrite
+    weighted.cacheRead += crT * p.cacheRead
+  }
+
+  const fb = PRICING['claude-opus-4-6']
+  return {
+    input:      totals.input      > 0 ? weighted.input      / totals.input      : fb.input,
+    output:     totals.output     > 0 ? weighted.output     / totals.output     : fb.output,
+    cacheWrite: totals.cacheWrite > 0 ? weighted.cacheWrite / totals.cacheWrite : fb.cacheWrite,
+    cacheRead:  totals.cacheRead  > 0 ? weighted.cacheRead  / totals.cacheRead  : fb.cacheRead,
+  }
 }
 
 function getPricing(model: string): ModelPricing {
@@ -99,4 +138,3 @@ export function estimateTotalCostFromModel(model: string, usage: ModelUsage): nu
 }
 
 export { getPricing }
-export type { ModelPricing }

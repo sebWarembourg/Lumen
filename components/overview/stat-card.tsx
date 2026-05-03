@@ -52,12 +52,12 @@ export function StatCard({ title, value, description, trend, sparkData, accentCo
       : rawSpark.map(v => ({ v }))
 
   return (
-    <Card className="gap-3">
+    <Card className="gap-3 transition-all duration-200 hover:-translate-y-0.5 cursor-default overflow-visible">
       <CardHeader className="pb-0">
         <CardDescription className="text-sm font-medium">{title}</CardDescription>
         <div className="flex items-end justify-between mt-1">
           <CardTitle
-            className="text-3xl font-bold tabular-nums leading-none"
+            className="text-3xl font-bold tabular-nums leading-none font-mono"
             style={{ color: resolvedAccent }}
           >
             {value}
@@ -82,9 +82,9 @@ export function StatCard({ title, value, description, trend, sparkData, accentCo
         )}
       </CardHeader>
       {chartData.length > 0 && (
-        <CardContent className="pt-0 pb-4 px-6">
-          <ResponsiveContainer width="100%" height={48}>
-            <LineChart data={chartData} margin={{ top: 4, right: 4, left: 4, bottom: 0 }}>
+        <CardContent className="pt-0 pb-4 px-6 overflow-visible">
+          <ResponsiveContainer width="100%" height={48} style={{ overflow: 'visible' }}>
+            <LineChart data={chartData} margin={{ top: 4, right: 4, left: 4, bottom: 6 }}>
               <Line
                 type="monotone"
                 dataKey="v"
@@ -92,6 +92,7 @@ export function StatCard({ title, value, description, trend, sparkData, accentCo
                 strokeWidth={1.5}
                 dot={false}
                 strokeOpacity={0.7}
+                activeDot={{ r: 3, fill: resolvedAccent }}
               />
             </LineChart>
           </ResponsiveContainer>

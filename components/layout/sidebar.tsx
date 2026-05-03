@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, FolderOpen, MessageSquare, DollarSign,
+  LayoutDashboard, FolderOpen, MessageSquare, DollarSign, Leaf,
   Wrench, Activity, History, CheckSquare, FileText,
   Brain, Settings, Download, Moon, Sun, PanelLeftClose, PanelLeft,
 } from 'lucide-react'
@@ -18,6 +18,7 @@ const NAV = [
   { href: '/projects', label: 'Projects',  icon: FolderOpen      },
   { href: '/sessions', label: 'Sessions',  icon: MessageSquare   },
   { href: '/costs',    label: 'Costs',     icon: DollarSign      },
+  { href: '/impact',   label: 'Impact',    icon: Leaf            },
   { href: '/tools',    label: 'Tools',     icon: Wrench          },
   { href: '/activity', label: 'Activity',  icon: Activity        },
   { href: '/history',  label: 'History',   icon: History         },
@@ -80,29 +81,14 @@ function SidebarContents({
         collapsed ? 'justify-center px-2 py-4' : 'justify-between px-4 pt-5 pb-4',
       )}>
         {!collapsed && (
-          <span
-            className={cn(
-              'inline-block rounded-md px-2.5 py-1.5 text-[12px] leading-snug tracking-[0.06em]',
-              'whitespace-nowrap select-none',
-              /* Light: readable terracotta on soft tint — no heavy dark-game shadow */
-              'text-[#9a3412]',
-              'bg-linear-to-b from-[#f97316]/14 to-[#f97316]/6',
-              'ring-1 ring-inset ring-[#f97316]/28',
-              'shadow-[inset_0_1px_0_rgba(255,255,255,0.7),0_1px_3px_rgba(24,24,27,0.08)]',
-              /* Dark: retro glow */
-              'dark:text-[#c2703a]',
-              'dark:from-[#c2703a]/18 dark:to-[#c2703a]/8 dark:ring-[#c2703a]/40',
-              'dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_0_22px_-8px_rgba(194,112,58,0.45)]',
-              '[-webkit-text-stroke:0.35px_rgba(124,45,18,0.35)] dark:[-webkit-text-stroke:0.45px_#b56230]',
-            )}
-            style={{ fontFamily: 'var(--font-press-start)' }}
-          >
-            <span
-              className="dark:[text-shadow:0_1px_0_#5c2a0c,0_2px_0_#3d1c08,0_3px_6px_rgba(0,0,0,0.35)] [text-shadow:0_1px_0_rgba(255,255,255,0.4)]"
-            >
-              CC Lens
+          <div className="flex flex-col leading-tight select-none">
+            <span className="text-[13px] font-bold tracking-tight text-sidebar-foreground">
+              Claude
             </span>
-          </span>
+            <span className="text-[10px] font-semibold tracking-[0.12em] uppercase text-sidebar-primary">
+              Analytics
+            </span>
+          </div>
         )}
         <button
           onClick={toggleCollapsed}
@@ -135,18 +121,8 @@ function SidebarContents({
       {/* Footer */}
       <div className={cn(
         'border-t border-sidebar-border flex items-center',
-        collapsed ? 'justify-center px-2 py-3' : 'justify-between px-4 py-3',
+        collapsed ? 'justify-center px-2 py-3' : 'justify-end px-4 py-3',
       )}>
-        {!collapsed && (
-          <a
-            href="https://github.com/Arindam200"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs text-sidebar-foreground/50 hover:text-sidebar-foreground transition-colors"
-          >
-           Made by Arindam
-          </a>
-        )}
         <button
           onClick={toggleTheme}
           aria-label="Toggle theme"

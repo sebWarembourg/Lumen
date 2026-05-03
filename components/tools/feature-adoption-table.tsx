@@ -21,13 +21,13 @@ export function FeatureAdoptionTable({ adoption, totalSessions }: Props) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-[13px]">
+      <table className="w-full text-sm">
         <thead>
           <tr className="border-b border-border">
-            <th className="py-2 text-left text-[12px] font-bold text-muted-foreground uppercase tracking-wider">Feature</th>
-            <th className="py-2 text-right text-[12px] font-bold text-muted-foreground uppercase tracking-wider">Sessions</th>
-            <th className="py-2 text-right text-[12px] font-bold text-muted-foreground uppercase tracking-wider">% of Total</th>
-            <th className="py-2 pl-4 text-left text-[12px] font-bold text-muted-foreground uppercase tracking-wider w-32">Adoption</th>
+            <th className="py-2 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider">Feature</th>
+            <th className="py-2 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">Sessions</th>
+            <th className="py-2 text-right text-xs font-semibold text-muted-foreground uppercase tracking-wider">% of Total</th>
+            <th className="py-2 pl-4 text-left text-xs font-semibold text-muted-foreground uppercase tracking-wider w-32">Adoption</th>
           </tr>
         </thead>
         <tbody>
@@ -52,7 +52,7 @@ export function FeatureAdoptionTable({ adoption, totalSessions }: Props) {
           })}
         </tbody>
       </table>
-      <p className="text-[12px] text-muted-foreground/40 mt-2">{totalSessions} total sessions analyzed</p>
+      <p className="text-xs text-muted-foreground/40 mt-2">{totalSessions} total sessions analyzed</p>
     </div>
   )
 }

@@ -13,24 +13,26 @@ export function CostByProjectChart({ projects }: Props) {
 
   return (
     <div>
-      <h3 className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest mb-3">Cost by Project</h3>
-      <ResponsiveContainer width="100%" height={Math.max(120, top.length * 28)}>
-        <BarChart data={top} layout="vertical" margin={{ top: 0, right: 60, bottom: 0, left: 8 }}>
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">Cost by Project</h3>
+      <ResponsiveContainer width="100%" height={Math.max(120, top.length * 40)}>
+        <BarChart data={top} layout="vertical" margin={{ top: 4, right: 64, bottom: 4, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
           <XAxis
             type="number"
             tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
             tickLine={false}
             axisLine={false}
-            tickFormatter={v => `$${v.toFixed(2)}`}
+            tickFormatter={v => v === 0 ? '' : `$${v.toFixed(2)}`}
           />
           <YAxis
             type="category"
             dataKey="display_name"
-            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+            tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
             tickLine={false}
             axisLine={false}
-            width={90}
+            width={144}
+            interval={0}
+            tickFormatter={(v: string) => v.length > 18 ? v.slice(0, 16) + '…' : v}
           />
           <Tooltip
             contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}

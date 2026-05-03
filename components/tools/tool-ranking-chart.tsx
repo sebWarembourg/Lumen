@@ -13,29 +13,31 @@ export function ToolRankingChart({ tools }: Props) {
 
   return (
     <div>
-      <h3 className="text-[13px] font-bold text-muted-foreground uppercase tracking-widest mb-3">
+      <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-3">
         Tool Usage — Ranked by Total Calls
       </h3>
-      <ResponsiveContainer width="100%" height={Math.max(200, top.length * 26)}>
-        <BarChart data={top} layout="vertical" margin={{ top: 0, right: 60, bottom: 0, left: 8 }}>
+      <ResponsiveContainer width="100%" height={Math.max(200, top.length * 40)}>
+        <BarChart data={top} layout="vertical" margin={{ top: 4, right: 60, bottom: 4, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" horizontal={false} />
           <XAxis
             type="number"
             tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
             tickLine={false}
             axisLine={false}
-            tickFormatter={v => v.toLocaleString()}
+            tickFormatter={v => v === 0 ? '' : v.toLocaleString()}
           />
           <YAxis
             type="category"
             dataKey="name"
-            tick={{ fontSize: 12, fill: 'var(--muted-foreground)' }}
+            tick={{ fontSize: 11, fill: 'var(--muted-foreground)' }}
             tickLine={false}
             axisLine={false}
-            width={110}
+            width={120}
+            interval={0}
+            tickFormatter={(v: string) => v.length > 18 ? v.slice(0, 16) + '…' : v}
           />
           <Tooltip
-            contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 12 }}
+            contentStyle={{ background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 4, fontSize: 11 }}
             formatter={(val: number | undefined, _name?: string, props?: { payload?: { name?: string } }) => [
               (val ?? 0).toLocaleString() + ' calls',
               props?.payload?.name ?? '',

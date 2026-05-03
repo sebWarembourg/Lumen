@@ -26,7 +26,7 @@ type FilterType = typeof FILTER_TYPES[number]
 function TypeBadge({ type }: { type: MemoryType }) {
   const m = TYPE_META[type] ?? TYPE_META.unknown
   return (
-    <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${m.color} ${m.bg} ${m.border}`}>
+    <span className={`text-xs font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded border ${m.color} ${m.bg} ${m.border}`}>
       {m.label}
     </span>
   )
@@ -37,7 +37,7 @@ function StaleBadge({ mtime }: { mtime: string }) {
   const daysOld = Math.floor((Date.now() - new Date(mtime).getTime()) / 86_400_000)
   if (daysOld < 30) return null
   return (
-    <span className="text-[10px] font-mono px-1.5 py-0.5 rounded border border-[#f87171]/30 bg-[#f87171]/10 text-[#f87171]">
+    <span className="text-xs font-mono px-1.5 py-0.5 rounded border border-[#f87171]/30 bg-[#f87171]/10 text-[#f87171]">
       stale
     </span>
   )
@@ -125,7 +125,7 @@ function MemoryCard({ entry, onClick, expanded }: { entry: MemoryEntry; onClick:
             {expanded && !editing && (
               <button
                 onClick={handleEdit}
-                className="ml-auto text-[10px] font-mono px-2 py-0.5 rounded border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
+                className="ml-auto text-xs font-mono px-2 py-0.5 rounded border border-border text-muted-foreground hover:border-primary/40 hover:text-foreground transition-colors"
               >
                 edit
               </button>
@@ -159,7 +159,7 @@ function MemoryCard({ entry, onClick, expanded }: { entry: MemoryEntry; onClick:
                 spellCheck={false}
               />
               {saveError && (
-                <p className="text-[11px] font-mono text-[#f87171]">{saveError}</p>
+                <p className="text-xs font-mono text-[#f87171]">{saveError}</p>
               )}
               <div className="flex gap-2">
                 <button
@@ -182,11 +182,11 @@ function MemoryCard({ entry, onClick, expanded }: { entry: MemoryEntry; onClick:
 
           {/* Footer */}
           <div className="flex flex-wrap items-center gap-2 pt-0.5">
-            <span className="text-[10px] font-mono text-muted-foreground/60 bg-muted px-1.5 py-0.5 rounded">
+            <span className="text-xs font-mono text-muted-foreground/60 bg-muted px-1.5 py-0.5 rounded">
               {projectName}
             </span>
-            <span className="text-[10px] font-mono text-muted-foreground/40">{shortPath}</span>
-            <span className="text-[10px] font-mono text-muted-foreground/50 ml-auto">
+            <span className="text-xs font-mono text-muted-foreground/40">{shortPath}</span>
+            <span className="text-xs font-mono text-muted-foreground/50 ml-auto">
               {formatRelativeDate(entry.mtime)}
             </span>
           </div>
@@ -201,8 +201,8 @@ function MemoryCard({ entry, onClick, expanded }: { entry: MemoryEntry; onClick:
 function StatCard({ value, label, color }: { value: number; label: string; color: string }) {
   return (
     <div className="border border-border bg-card rounded-lg px-4 py-3 flex flex-col gap-1">
-      <span className="text-2xl font-mono font-bold" style={{ color }}>{value}</span>
-      <span className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
+      <span className="text-3xl font-mono font-bold tabular-nums" style={{ color }}>{value}</span>
+      <span className="text-xs font-mono uppercase tracking-widest text-muted-foreground">{label}</span>
     </div>
   )
 }

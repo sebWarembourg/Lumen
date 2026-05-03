@@ -24,11 +24,11 @@ export function ModelTokenTable({ models }: Props) {
 
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-[13px] font-mono">
+      <table className="w-full text-sm font-mono tabular-nums">
         <thead>
           <tr className="border-b border-border">
             {['Model', 'Input', 'Output', 'Cache W', 'Cache R', 'Cost'].map(h => (
-              <th key={h} className={`py-2 text-[12px] font-bold text-muted-foreground uppercase tracking-wider ${h === 'Model' ? 'text-left' : 'text-right'}`}>
+              <th key={h} className={`py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider ${h === 'Model' ? 'text-left' : 'text-right'}`}>
                 {h}
               </th>
             ))}

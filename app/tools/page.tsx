@@ -50,7 +50,7 @@ export default function ToolsPage() {
                   <CardDescription className="flex items-center gap-2">
                     <Zap className="w-4 h-4" /> Tool Calls
                   </CardDescription>
-                  <CardTitle className="text-3xl font-bold tabular-nums text-[#d97706]">
+                  <CardTitle className="text-3xl font-bold tabular-nums font-mono text-[#d97706]">
                     {data.total_tool_calls.toLocaleString()}
                   </CardTitle>
                 </CardHeader>
@@ -64,7 +64,7 @@ export default function ToolsPage() {
                   <CardDescription className="flex items-center gap-2">
                     <Wrench className="w-4 h-4" /> Unique Tools
                   </CardDescription>
-                  <CardTitle className="text-3xl font-bold tabular-nums">
+                  <CardTitle className="text-3xl font-bold tabular-nums font-mono">
                     {data.tools.length}
                   </CardTitle>
                 </CardHeader>
@@ -78,7 +78,7 @@ export default function ToolsPage() {
                   <CardDescription className="flex items-center gap-2">
                     <Server className="w-4 h-4" /> MCP Servers
                   </CardDescription>
-                  <CardTitle className="text-3xl font-bold tabular-nums text-[#34d399]">
+                  <CardTitle className="text-3xl font-bold tabular-nums font-mono text-[#34d399]">
                     {data.mcp_servers.length}
                   </CardTitle>
                 </CardHeader>
@@ -92,7 +92,7 @@ export default function ToolsPage() {
                   <CardDescription className="flex items-center gap-2">
                     <AlertTriangle className="w-4 h-4" /> Errors
                   </CardDescription>
-                  <CardTitle className={`text-3xl font-bold tabular-nums ${data.total_errors > 0 ? 'text-red-400' : 'text-muted-foreground'}`}>
+                  <CardTitle className={`text-3xl font-bold tabular-nums font-mono ${data.total_errors > 0 ? 'text-red-400' : 'text-muted-foreground'}`}>
                     {data.total_errors}
                   </CardTitle>
                 </CardHeader>

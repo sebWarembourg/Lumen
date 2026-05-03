@@ -14,16 +14,8 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     >
       {children}
       <footer className="border-t border-border/50 py-3 px-6 flex items-center justify-center mb-16 md:mb-0">
-        <p className="text-xs text-muted-foreground">
-          Made by{' '}
-          <a
-            href="https://github.com/Arindam200"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-muted-foreground hover:text-foreground underline underline-offset-2 transition-colors"
-          >
-            Arindam
-          </a>
+        <p className="text-xs text-muted-foreground/40 font-mono">
+          reads from ~/.claude/ · local only · no telemetry
         </p>
       </footer>
     </main>
