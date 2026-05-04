@@ -1,13 +1,13 @@
 {
-  "name": "cc-lens",
-  "version": "0.3.1",
-  "description": "Claude Code Lens — visualize your usage, costs, and sessions from ~/.claude/",
-  "author": "Arindam Majumder <arindam@studio1hq.com> (https://github.com/Arindam200)",
+  "name": "lumen",
+  "version": "1.0.0",
+  "description": "Local analytics dashboard for Claude Code — usage, costs, environmental impact, disconnection tracking",
+  "author": "Sebastien Warembourg (https://github.com/sebWarembourg)",
   "license": "MIT",
-  "homepage": "https://github.com/Arindam200/cc-lens#readme",
+  "homepage": "https://github.com/sebWarembourg/Lumen#readme",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Arindam200/cc-lens.git"
+    "url": "git+https://github.com/sebWarembourg/Lumen.git"
   },
   "keywords": [
     "claude",
@@ -15,13 +15,14 @@
     "anthropic",
     "dashboard",
     "analytics",
+    "environmental-impact",
     "cli"
   ],
   "engines": {
     "node": ">=18"
   },
   "bin": {
-    "cc-lens": "bin/cli.js"
+    "lumen": "bin/cli.js"
   },
   "files": [
     "bin",

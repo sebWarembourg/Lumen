@@ -1,10 +1,10 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./public/dashboard-dark.png" />
   <source media="(prefers-color-scheme: light)" srcset="./public/dashboard-white.png" />
-  <img alt="Claude Analytics dashboard" src="./public/dashboard-dark.png" width="100%" />
+  <img alt="Lumen dashboard" src="./public/dashboard-dark.png" width="100%" />
 </picture>
 
-# Claude Analytics
+# Lumen
 
 **Local analytics dashboard for Claude Code — with environmental impact tracking and mental health awareness.**
 
@@ -18,15 +18,15 @@ The standard Claude Code dashboard tells you what you've done. This one also ask
 
 - 🌱 **Ecological footprint** — LLM inference consumes real energy and water. This dashboard makes it visible, per model, per day, per token type.
 - 🧠 **Mental health** — AI tools blur the line between focus and burnout. The disconnection panel tracks when you actually unplug.
-- 💻 **Full technical depth** — sessions, costs, tools, projects, memory, streaks. Everything the original cc-lens does, and more.
+- 💻 **Full technical depth** — sessions, costs, tools, projects, memory, streaks.
 
 ---
 
 ## Run from source
 
 ```bash
-git clone https://github.com/sebWarembourg/cc-lens.git
-cd cc-lens
+git clone https://github.com/sebWarembourg/Lumen.git
+cd Lumen
 npm install
 npm run dev        # → http://localhost:3333
 ```
@@ -166,5 +166,5 @@ Runs entirely locally. No login, no API key, no telemetry. Your data stays on yo
 
 ## Credits
 
-Built on [cc-lens](https://github.com/Arindam200/cc-lens) by [@Arindam200](https://github.com/Arindam200).
-Extended by [@sebWarembourg](https://github.com/sebWarembourg) with Impact tracking, Disconnection panel, theme fixes, and UX improvements.
+Originally derived from [cc-lens](https://github.com/Arindam200/cc-lens) by [@Arindam200](https://github.com/Arindam200).
+Lumen — the standalone evolution — is built and maintained by [@sebWarembourg](https://github.com/sebWarembourg), with Impact tracking, Disconnection panel, theme fixes, and UX improvements layered on top.

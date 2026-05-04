@@ -260,7 +260,7 @@ export default function MemoryPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <TopBar title="claude-code-lens · memory" subtitle="~/.claude/projects/*/memory/" />
+      <TopBar title="lumen · memory" subtitle="~/.claude/projects/*/memory/" />
       <div className="p-4 md:p-6 space-y-5">
 
         {error && <p className="text-[var(--error)] text-sm font-mono">Error loading memories.</p>}

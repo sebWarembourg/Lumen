@@ -21,7 +21,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: 'Claude Analytics',
+  title: 'Lumen',
   description: 'Local AI usage dashboard. Reads directly from ~/.claude/ — no telemetry, no API.',
 }
 

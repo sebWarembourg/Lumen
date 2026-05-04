@@ -83,7 +83,7 @@ export default function SettingsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <TopBar title="claude-code-lens · settings" subtitle="~/.claude/settings.json" />
+      <TopBar title="lumen · settings" subtitle="~/.claude/settings.json" />
       <div className="p-4 md:p-6 space-y-6">
         {error && <p className="text-[var(--error)] text-sm font-mono">Error: {String(error)}</p>}
         {isLoading && (

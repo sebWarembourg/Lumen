@@ -251,7 +251,7 @@ export default function PlansPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <TopBar title="claude-code-lens · plans" subtitle="~/.claude/plans/" />
+      <TopBar title="lumen · plans" subtitle="~/.claude/plans/" />
       <div className="p-4 md:p-6 space-y-5">
 
         {error && <p className="text-[#f87171] text-sm font-mono">Error: {String(error)}</p>}

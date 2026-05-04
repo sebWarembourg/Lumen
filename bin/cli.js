@@ -8,7 +8,7 @@ const path = require('path')
 const fs   = require('fs')
 
 const PKG_DIR   = path.join(__dirname, '..')
-const CACHE_DIR = path.join(os.homedir(), '.cc-lens')
+const CACHE_DIR = path.join(os.homedir(), '.lumen')
 
 // ANSI helpers — Claude's warm orange palette
 const O   = '\x1b[38;5;208m'  // orange
@@ -24,21 +24,21 @@ function link(text, url) {
 
 function printBanner() {
   const art = [
-    `${O}${B} ██████╗ ██████╗     ██╗     ███████╗███╗   ██╗███████╗${R}`,
-    `${O}${B}██╔════╝██╔════╝     ██║     ██╔════╝████╗  ██║██╔════╝${R}`,
-    `${O2}${B}██║     ██║          ██║     █████╗  ██╔██╗ ██║███████╗${R}`,
-    `${O2}${B}██║     ██║          ██║     ██╔══╝  ██║╚██╗██║╚════██║${R}`,
-    `${O}${B}╚██████╗╚██████╗     ███████╗███████╗██║ ╚████║███████║${R}`,
-    `${O}${B} ╚═════╝ ╚═════╝     ╚══════╝╚══════╝╚═╝  ╚═══╝╚══════╝${R}`,
+    `${O}${B}██╗     ██╗   ██╗███╗   ███╗███████╗███╗   ██╗${R}`,
+    `${O}${B}██║     ██║   ██║████╗ ████║██╔════╝████╗  ██║${R}`,
+    `${O2}${B}██║     ██║   ██║██╔████╔██║█████╗  ██╔██╗ ██║${R}`,
+    `${O2}${B}██║     ██║   ██║██║╚██╔╝██║██╔══╝  ██║╚██╗██║${R}`,
+    `${O}${B}███████╗╚██████╔╝██║ ╚═╝ ██║███████╗██║ ╚████║${R}`,
+    `${O}${B}╚══════╝ ╚═════╝ ╚═╝     ╚═╝╚══════╝╚═╝  ╚═══╝${R}`,
   ]
 
-  const author = link(`${O2}Arindam${R}`, 'https://github.com/Arindam200')
+  const author = link(`${O2}@sebWarembourg${R}`, 'https://github.com/sebWarembourg')
 
   console.log()
   art.forEach((line) => console.log('  ' + line))
   console.log()
   const configDir = process.env.CLAUDE_CONFIG_DIR ?? path.join(os.homedir(), '.claude')
-  console.log(`  ${B}${O}Claude Code Lens${R}   ${DIM}—  your ~/.claude/ at a glance${R}`)
+  console.log(`  ${B}${O}Lumen${R}   ${DIM}—  your ~/.claude/ at a glance${R}`)
   console.log(`  ${DIM}Made with ♥ by ${R}${author}`)
   console.log()
   console.log(`  ${DIM}Config dir:${R}  ${O2}${configDir}${R}`)
@@ -65,7 +65,7 @@ function openBrowser(url) {
   exec(cmd)
 }
 
-// Source dirs/files to mirror into ~/.cc-lens/
+// Source dirs/files to mirror into ~/.lumen/
 const SRC_DIRS  = ['app', 'components', 'lib', 'types', 'public']
 const SRC_FILES = ['next.config.ts', 'tsconfig.json', 'postcss.config.mjs', 'components.json']
 
@@ -87,7 +87,7 @@ function syncSource(pkg) {
   // devDependencies (eslint, shadcn, etc.) are not needed and may have
   // pinned versions that don't exist on npm, causing ETARGET errors.
   fs.writeFileSync(path.join(CACHE_DIR, 'package.json'), JSON.stringify({
-    name: 'cc-lens-runtime',
+    name: 'lumen-runtime',
     version: pkg.version,
     dependencies: pkg.dependencies,
   }, null, 2))
@@ -98,8 +98,8 @@ async function main() {
 
   const pkg = require(path.join(PKG_DIR, 'package.json'))
 
-  // Check whether ~/.cc-lens/ is up-to-date for this version
-  const versionFile = path.join(CACHE_DIR, '.cc-lens-version')
+  // Check whether ~/.lumen/ is up-to-date for this version
+  const versionFile = path.join(CACHE_DIR, '.lumen-version')
   const cachedVersion = fs.existsSync(versionFile)
     ? fs.readFileSync(versionFile, 'utf8').trim()
     : null
@@ -111,7 +111,7 @@ async function main() {
   if (needsSetup) {
     console.log(`  ${DIM}Setting up (first run, may take a minute)…${R}\n`)
 
-    // Copy all source files into ~/.cc-lens/ so Next.js runs entirely within
+    // Copy all source files into ~/.lumen/ so Next.js runs entirely within
     // that directory — no symlinks, no Turbopack root violations.
     syncSource(pkg)
 
