@@ -1,6 +1,6 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./public/dashboard-dark.png" />
-  <source media="(prefers-color-scheme: light)" srcset="./public/dashboard-white.png" />
+  <source media="(prefers-color-scheme: dark)" srcset="./public/overview-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./public/overview-light.png" />
   <img alt="Lumen dashboard" src="./public/dashboard-dark.png" width="100%" />
 </picture>
 
@@ -44,8 +44,8 @@ CLAUDE_CONFIG_DIR=~/.claude-work npm run dev
 ### Overview
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./public/dashboard-dark.png" />
-  <source media="(prefers-color-scheme: light)" srcset="./public/dashboard-white.png" />
+   <source media="(prefers-color-scheme: dark)" srcset="./public/overview-dark.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./public/overview-light.png" />
   <img alt="Dashboard overview" src="./public/dashboard-dark.png" />
 </picture>
 
@@ -98,7 +98,7 @@ Searchable, sortable project grid. Per-project: sessions, duration, estimated co
 
 ### Sessions
 
-![Session replay](./public/session-chat.png)
+![Session replay](./public/session.png)
 
 Full session replay from JSONL. Badges for compaction, agents, MCP, extended thinking. Responses in GitHub-flavored Markdown. Tool calls and file cards inline. Per-turn cost and token breakdown.
 
