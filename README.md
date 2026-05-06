@@ -42,15 +42,24 @@ CLAUDE_CONFIG_DIR=~/.claude-work npm run dev
 ## What's inside
 
 ### Overview
-
-<picture>
-   <source srcset="./public/overview-dark.png" />
-  <img alt="Dashboard overview" src="./public/dashboard-dark.png" />
-</picture>
-<picture>
-  <source srcset="./public/overview-light.png" />
-  <img alt="Dashboard overview" src="./public/dashboard-dark.png" />
-</picture>
+<div align="center">
+  <table>
+    <tr>
+      <td>
+        <picture>
+          <source srcset="./public/overview-dark.png" />
+          <img alt="Dashboard overview dark" src="./public/dashboard-dark.png" />
+        </picture>
+      </td>
+      <td>
+        <picture>
+          <source srcset="./public/overview-light.png" />
+          <img alt="Dashboard overview light" src="./public/dashboard-light.png" />
+        </picture>
+      </td>
+    </tr>
+  </table>
+</div>
 
 Sessions, tokens, estimated cost, and local storage at a glance. Trend cards with sparklines, date presets (7d / 30d / 90d / custom range picker), model distribution, peak hours, project activity, and recent sessions.
 
