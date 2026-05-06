@@ -16,9 +16,9 @@ Reads directly from `~/.claude/`. No cloud, no API key, no telemetry.
 
 The standard Claude Code dashboard tells you what you've done. This one also asks **what it cost** — in dollars, in energy, and in rest.
 
+- 💻 **Full technical depth** — sessions, costs, tools, projects, memory, streaks.
 - 🌱 **Ecological footprint** — LLM inference consumes real energy and water. This dashboard makes it visible, per model, per day, per token type.
 - 🧠 **Mental health** — AI tools blur the line between focus and burnout. The disconnection panel tracks when you actually unplug.
-- 💻 **Full technical depth** — sessions, costs, tools, projects, memory, streaks.
 
 ---
 
@@ -44,8 +44,11 @@ CLAUDE_CONFIG_DIR=~/.claude-work npm run dev
 ### Overview
 
 <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="./public/overview-dark.png" />
-  <source media="(prefers-color-scheme: light)" srcset="./public/overview-light.png" />
+   <source srcset="./public/overview-dark.png" />
+  <img alt="Dashboard overview" src="./public/dashboard-dark.png" />
+</picture>
+<picture>
+  <source srcset="./public/overview-light.png" />
   <img alt="Dashboard overview" src="./public/dashboard-dark.png" />
 </picture>
 
@@ -86,6 +89,7 @@ Inside the **Activity** page, the **Disconnection** block tracks the gaps — ti
 A bar chart shows every gap in your history, color-coded:
 - 🔴 1–2 days · 🟡 3–6 days · 🟢 7+ days (reference line for a real break)
 
+For the activity : GitHub-style heatmap, current streak, longest streak, peak hours, day-of-week patterns.
 ---
 
 ### Projects
@@ -120,19 +124,11 @@ Tool ranking, categories (file I/O, shell, agents, web, MCP…), feature adoptio
 
 ---
 
-### Activity
+### Local Claude Code Files 
 
-![Activity calendar](./public/activity.png)
+![Todos](./public/memory.png)
 
-GitHub-style heatmap, current streak, longest streak, peak hours, day-of-week patterns, and the Disconnection panel.
-
----
-
-### Local Claude Code Files
-
-![Todos](./public/todos.png)
-
-History, Todos, Plans, Memory, and Settings — read directly from `~/.claude/`.
+History, Todos, Plans, Memory, and Settings — read directly from `~/.claude/`. Give you visibility on the invisible.
 
 ---
 
