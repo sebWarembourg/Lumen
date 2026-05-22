@@ -10,6 +10,32 @@ interface Props {
   projects: ProjectCost[]
 }
 
+interface TooltipPayloadItem {
+  payload: ProjectCost
+  value: number
+}
+
+function ProjectTooltip({ active, payload }: { active?: boolean; payload?: TooltipPayloadItem[] }) {
+  if (!active || !payload?.length) return null
+  const p = payload[0].payload
+  return (
+    <div
+      className="rounded-md border border-border bg-[var(--surface)] px-3 py-2 text-xs shadow-sm max-w-xs"
+    >
+      <div className="font-medium text-foreground">{p.display_name}</div>
+      {p.slug && p.slug !== 'hors-projet' && (
+        <div className="font-mono text-[10px] text-muted-foreground truncate mt-0.5">
+          {p.slug}
+        </div>
+      )}
+      <div className="mt-1 tabular-nums">
+        <span className="text-muted-foreground">Estimated cost · </span>
+        <span className="text-foreground">{formatCost(payload[0].value)}</span>
+      </div>
+    </div>
+  )
+}
+
 export function CostByProjectChart({ projects }: Props) {
   const { theme } = useTheme()
   const palette = getChartPalette(theme)
@@ -47,8 +73,8 @@ export function CostByProjectChart({ projects }: Props) {
             tickFormatter={(v: string) => v.length > 18 ? v.slice(0, 16) + '…' : v}
           />
           <Tooltip
-            contentStyle={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 8, fontSize: 12 }}
-            formatter={(val: number | undefined) => [formatCost(val ?? 0), 'Estimated cost']}
+            cursor={{ fill: 'var(--muted)', opacity: 0.4 }}
+            content={<ProjectTooltip />}
           />
           <Bar dataKey="estimated_cost" radius={[0, 3, 3, 0]}>
             {top.map((_, i) => (

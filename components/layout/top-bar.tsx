@@ -2,14 +2,15 @@
 
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
-import { mutate } from 'swr'
+import useSWR, { mutate } from 'swr'
 import { Search, RefreshCw, Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useSidebar } from '@/components/layout/sidebar-context'
 import { cn } from '@/lib/utils'
 
 interface TopBarProps {
-  title: string
+  /** Page title appended after the OS user name (e.g. "Sebastien · Costs"). */
+  title?: string
   subtitle?: string
   className?: string
 }
@@ -25,11 +26,23 @@ function formatTimestamp(d: Date) {
   })
 }
 
+const userFetcher = (url: string) =>
+  fetch(url).then(r => {
+    if (!r.ok) throw new Error(`API error ${r.status}`)
+    return r.json() as Promise<{ name: string; username: string }>
+  })
+
 export function TopBar({ title, subtitle, className }: TopBarProps) {
   const router = useRouter()
   const { setMobileOpen } = useSidebar()
   const [refreshing, setRefreshing] = useState(false)
   const [now, setNow] = useState<string>('')
+  const { data: user } = useSWR('/api/user', userFetcher, {
+    revalidateOnFocus: false,
+    revalidateIfStale: false,
+  })
+  const osName = user?.name ?? '\u00A0'
+  const heading = title ? `${osName} · ${title}` : osName
 
   useEffect(() => {
     const update = () => setNow(formatTimestamp(new Date()))
@@ -58,7 +71,7 @@ export function TopBar({ title, subtitle, className }: TopBarProps) {
     >
       {/* Left: title + subtitle */}
       <div className="min-w-0">
-        <h1 className="text-[15px] font-medium tracking-[-0.015em] text-foreground truncate">{title}</h1>
+        <h1 className="text-[15px] font-medium tracking-[-0.015em] text-foreground truncate">{heading}</h1>
         {subtitle && (
           <p className="text-xs font-mono text-muted-foreground truncate tracking-wide" suppressHydrationWarning>
             {subtitle}{now ? ` · ${now}` : ''}

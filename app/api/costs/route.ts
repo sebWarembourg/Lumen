@@ -11,12 +11,29 @@ import type { CostAnalytics, ModelCostBreakdown, DailyCost, ProjectCost } from '
 
 export const dynamic = 'force-dynamic'
 
-export async function GET() {
-  const [stats, sessions] = await Promise.all([readStatsCache(), getSessions()])
+export async function GET(request: Request) {
+  const [stats, allSessions] = await Promise.all([readStatsCache(), getSessions()])
 
   if (!stats) {
     return NextResponse.json({ error: 'stats-cache.json not found' }, { status: 404 })
   }
+
+  // Optional ?from=YYYY-MM-DD&to=YYYY-MM-DD window. When provided, every
+  // aggregate below (totals, daily, per-model, per-project, savings) is
+  // recomputed over the filtered session set so the UI date selector drives
+  // the whole page consistently.
+  const url = new URL(request.url)
+  const fromISO = url.searchParams.get('from') ?? undefined
+  const toISO = url.searchParams.get('to') ?? undefined
+  const sessions = (fromISO || toISO)
+    ? allSessions.filter(s => {
+        const day = (s.start_time ?? '').slice(0, 10)
+        if (!day) return false
+        if (fromISO && day < fromISO) return false
+        if (toISO && day > toISO) return false
+        return true
+      })
+    : allSessions
 
   // Model mix comes from stats.modelUsage (snapshot, possibly stale), session
   // volumes come from the live on-disk sessions. Blended pricing weights the
@@ -28,7 +45,7 @@ export async function GET() {
   const totalTokens = { input: 0, output: 0, cacheRead: 0, cacheWrite: 0 }
   let totalCost = 0
   let totalSavings = 0
-  const dailyMap = new Map<string, number>()
+  const dailyMap = new Map<string, { cost: number; savings: number }>()
   const projectMap = new Map<string, { cost: number; input: number; output: number }>()
   const HORS_PROJET = '__hors_projet__'
 
@@ -55,9 +72,13 @@ export async function GET() {
     totalCost += sessionCost
     totalSavings += sessionSavings
 
-    // Daily
+    // Daily — track cost and savings separately so the UI can derive
+    // "without cache" (= cost + savings) per day if needed.
     const day = (s.start_time ?? '').slice(0, 10)
-    if (day) dailyMap.set(day, (dailyMap.get(day) ?? 0) + sessionCost)
+    if (day) {
+      const prev = dailyMap.get(day) ?? { cost: 0, savings: 0 }
+      dailyMap.set(day, { cost: prev.cost + sessionCost, savings: prev.savings + sessionSavings })
+    }
 
     // By project
     const pp = s.project_path ?? ''
@@ -72,7 +93,11 @@ export async function GET() {
 
   const daily: DailyCost[] = [...dailyMap.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(([date, total]) => ({ date, costs: { blended: total }, total }))
+    .map(([date, { cost, savings }]) => ({
+      date,
+      costs: { blended: cost, savings },
+      total: cost,
+    }))
 
   // ── Per-model breakdown ──────────────────────────────────────────────────
   // Distribute session token totals to each model using modelUsage per-type

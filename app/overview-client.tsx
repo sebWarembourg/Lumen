@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react'
 import useSWR from 'swr'
-import { BarChart3, PieChart, Clock, CalendarDays } from 'lucide-react'
+import { BarChart3, PieChart, Clock } from 'lucide-react'
 import { UsageOverTimeChart } from '@/components/overview/usage-over-time-chart'
 import { ModelBreakdownDonut } from '@/components/overview/model-breakdown-donut'
 import { ProjectActivityDonut } from '@/components/overview/project-activity-donut'
@@ -11,14 +11,11 @@ import { OverviewConversationTable } from '@/components/overview/conversation-ta
 import { StatCard } from '@/components/overview/stat-card'
 import { formatTokens, formatBytes } from '@/lib/decode'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { Calendar } from '@/components/ui/calendar'
-import type { StatsCache, DailyActivity, DailyTokens } from '@/types/claude'
+import { DateRangeSelector, DEFAULT_DATE_RANGE, resolveDateRange } from '@/components/layout/date-range-selector'
+import type { StatsCache, DailyActivity, DailyTokens, CostAnalytics } from '@/types/claude'
 import type { SessionWithFacet, ProjectSummary } from '@/types/claude'
-import { format, subDays } from 'date-fns'
+import { format } from 'date-fns'
 import { useTheme } from '@/components/theme-provider'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -42,9 +39,6 @@ interface ApiResponse {
     sessionCount: number
   }
 }
-
-type DatePreset = '7d' | '30d' | '90d'
-type CustomRange = { from?: Date; to?: Date }
 
 const fetcher = (url: string) =>
   fetch(url).then(r => {
@@ -83,13 +77,23 @@ function getTokenSpark(tokensByDate: DailyTokens[], days = 14): number[] {
     .map(d => Object.values(d.tokensByModel ?? {}).reduce((s, v) => s + v, 0))
 }
 
+/** Generic % trend over the last N days vs the previous N days for any per-day numeric series. */
+function computeTrendFromSeries(series: { date: string; value: number }[], days = 7): number | undefined {
+  const sorted = [...series].sort((a, b) => a.date.localeCompare(b.date))
+  const recent = sorted.slice(-days)
+  const previous = sorted.slice(-(days * 2), -days)
+  if (!recent.length || !previous.length) return undefined
+  const recentSum = recent.reduce((s, d) => s + d.value, 0)
+  const prevSum = previous.reduce((s, d) => s + d.value, 0)
+  if (prevSum === 0) return undefined
+  return ((recentSum - prevSum) / prevSum) * 100
+}
+
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export function OverviewClient() {
   const { theme } = useTheme()
-  const [datePreset, setDatePreset] = useState<DatePreset>('30d')
-  const [customRange, setCustomRange] = useState<CustomRange>({})
-  const [pickerOpen, setPickerOpen] = useState(false)
+  const [range, setRange] = useState(resolveDateRange('30d', {}))
 
   const { data, error, isLoading } = useSWR<ApiResponse>('/api/stats', fetcher, {
     refreshInterval: 60_000,
@@ -100,25 +104,17 @@ export function OverviewClient() {
   const { data: projectsData } = useSWR<{ projects: ProjectSummary[] }>('/api/projects', fetcher, {
     refreshInterval: 60_000,
   })
+  const { data: costsData } = useSWR<CostAnalytics>('/api/costs', fetcher, {
+    refreshInterval: 60_000,
+  })
 
   const sessions = sessionsData?.sessions ?? []
   const projects = projectsData?.projects ?? []
   const projectCount = projects.length
 
-  const usingCustom = !!(customRange.from && customRange.to)
-  const chartDays = usingCustom
-    ? Math.ceil((customRange.to!.getTime() - customRange.from!.getTime()) / (24 * 60 * 60 * 1000))
-    : datePreset === '7d' ? 7 : datePreset === '30d' ? 30 : 90
-  const effectiveDateFrom = usingCustom
-    ? format(customRange.from!, 'MM/dd/yyyy')
-    : format(subDays(new Date(), chartDays), 'MM/dd/yyyy')
-  const effectiveDateTo = usingCustom
-    ? format(customRange.to!, 'MM/dd/yyyy')
-    : format(new Date(), 'MM/dd/yyyy')
-
-  const pickerLabel = usingCustom
-    ? `${format(customRange.from!, 'MMM d')} – ${format(customRange.to!, 'MMM d, yyyy')}`
-    : 'Pick a date'
+  const chartDays = range.days
+  const effectiveDateFrom = format(range.from, 'MM/dd/yyyy')
+  const effectiveDateTo = format(range.to, 'MM/dd/yyyy')
 
   // ── Loading ──────────────────────────────────────────────────────────────
   if (isLoading || !data || !data.computed) {
@@ -171,6 +167,31 @@ export function OverviewClient() {
 
   const tokensByDate = stats.dailyModelTokens ?? stats.tokensByDate ?? []
 
+  // Windowed metrics: filter daily series by the selected date range so every
+  // stat card reacts to the 7d/30d/90d/custom selector. Fall back to all-time
+  // totals while the underlying data is still loading.
+  const fromISO = format(range.from, 'yyyy-MM-dd')
+  const toISO = format(range.to, 'yyyy-MM-dd')
+
+  const dailyInRange = stats.dailyActivity.filter(d => d.date >= fromISO && d.date <= toISO)
+  const windowedSessions = dailyInRange.reduce((s, d) => s + (d.sessionCount ?? 0), 0)
+  const windowedMessages = dailyInRange.reduce((s, d) => s + (d.messageCount ?? 0), 0)
+  const windowedActiveDays = dailyInRange.filter(d => (d.sessionCount ?? 0) > 0).length
+
+  const tokensInRange = tokensByDate.filter(d => d.date >= fromISO && d.date <= toISO)
+  const windowedTokens = tokensInRange.reduce(
+    (s, d) => s + Object.values(d.tokensByModel ?? {}).reduce((a, b) => a + b, 0),
+    0,
+  )
+
+  const dailyCostsInRange = costsData?.daily.filter(d => d.date >= fromISO && d.date <= toISO) ?? []
+  const windowedCost = costsData
+    ? dailyCostsInRange.reduce((sum, d) => sum + (d.total ?? 0), 0)
+    : computed.totalCost
+  const windowedSavings = costsData
+    ? dailyCostsInRange.reduce((sum, d) => sum + (Number(d.costs?.savings ?? 0)), 0)
+    : computed.totalCacheSavings
+
   // Trends compare last N days vs previous N days (capped at 30 to avoid sparse data)
   const trendWindow = Math.min(Math.max(chartDays, 7), 30)
 
@@ -180,51 +201,12 @@ export function OverviewClient() {
       {/* ── Page header ───────────────────────────────────────────────────── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold tracking-tight">Overview</h2>
-          <p className="text-sm text-muted-foreground mt-0.5">
+          <p className="text-sm text-muted-foreground">
             {projectCount} projects · {formatBytes(computed.storageBytes)} stored
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Tabs
-            value={usingCustom ? '' : datePreset}
-            onValueChange={v => {
-              setDatePreset(v as DatePreset)
-              setCustomRange({})
-            }}
-          >
-            <TabsList>
-              <TabsTrigger value="7d">7d</TabsTrigger>
-              <TabsTrigger value="30d">30d</TabsTrigger>
-              <TabsTrigger value="90d">90d</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant={usingCustom ? 'default' : 'outline'}
-                size="sm"
-                className="gap-2"
-              >
-                <CalendarDays className="w-3.5 h-3.5" />
-                {pickerLabel}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="end">
-              <Calendar
-                mode="range"
-                selected={{ from: customRange.from, to: customRange.to }}
-                onSelect={range => {
-                  setCustomRange({ from: range?.from, to: range?.to })
-                  if (range?.from && range?.to) setPickerOpen(false)
-                }}
-                disabled={{ after: new Date() }}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
-
+          <DateRangeSelector value={range} onChange={setRange} presets={['7d', '30d', '90d']} />
         </div>
       </div>
 
@@ -232,33 +214,44 @@ export function OverviewClient() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Sessions"
-          value={computed.sessionCount.toLocaleString()}
-          description={`${computed.sessionsThisMonth} this month · ${computed.sessionsThisWeek} this week`}
+          value={windowedSessions.toLocaleString()}
+          description={`${windowedActiveDays} active days · last ${chartDays}d`}
           trend={computeTrend(stats.dailyActivity, 'sessionCount', trendWindow)}
           sparkData={getActivitySpark(stats.dailyActivity, 'sessionCount')}
           accentColor="var(--foreground)"
         />
         <StatCard
           title="Messages"
-          value={stats.totalMessages.toLocaleString()}
-          description={`${computed.activeDays} active days`}
+          value={windowedMessages.toLocaleString()}
+          description={`${windowedActiveDays} active days · last ${chartDays}d`}
           trend={computeTrend(stats.dailyActivity, 'messageCount', trendWindow)}
           sparkData={getActivitySpark(stats.dailyActivity, 'messageCount')}
           accentColor={indigo}
         />
         <StatCard
           title="Tokens Used"
-          value={formatTokens(computed.totalTokens)}
-          description={`${formatTokens(computed.totalCacheReadTokens)} from cache · ~¾ word per token`}
+          value={formatTokens(windowedTokens)}
+          description={`~¾ word per token · last ${chartDays}d`}
+          trend={computeTrendFromSeries(
+            tokensByDate.map(d => ({
+              date: d.date,
+              value: Object.values(d.tokensByModel ?? {}).reduce((a, b) => a + b, 0),
+            })),
+            trendWindow,
+          )}
           sparkData={getTokenSpark(tokensByDate)}
           accentColor={indigo}
         />
         <StatCard
           title="Estimated Cost"
-          value={`$${computed.totalCost.toFixed(2)}`}
-          description={`$${computed.totalCacheSavings.toFixed(2)} saved via prompt cache`}
+          value={`$${windowedCost.toFixed(2)}`}
+          description={`$${windowedSavings.toFixed(2)} saved via prompt cache · last ${chartDays}d`}
+          trend={computeTrendFromSeries(
+            (costsData?.daily ?? []).map(d => ({ date: d.date, value: d.total ?? 0 })),
+            trendWindow,
+          )}
           sparkData={getTokenSpark(tokensByDate)}
-          accentColor={success}
+          accentColor={indigo}
         />
       </div>
 

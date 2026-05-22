@@ -22,17 +22,19 @@ const fetcher = (url: string) =>
 
 export default function CostsPage() {
   const [range, setRange] = useState(DEFAULT_DATE_RANGE)
-  const { data, error, isLoading } = useSWR<CostAnalytics>('/api/costs', fetcher, { refreshInterval: 60_000 })
 
-  // Filter daily data to selected range + recompute windowed cost.
-  const windowed = useMemo(() => {
-    if (!data) return null
+  // Pass the window to the API so totals, per-model and per-project all
+  // reflect the selected range. When the preset is 'all', omit params so the
+  // API returns all-time data.
+  const apiUrl = useMemo(() => {
+    if (range.preset === 'all' && !range.usingCustom) return '/api/costs'
     const fromISO = range.from.toISOString().slice(0, 10)
     const toISO = range.to.toISOString().slice(0, 10)
-    const filteredDaily = data.daily.filter(d => d.date >= fromISO && d.date <= toISO)
-    const windowCost = filteredDaily.reduce((sum, d) => sum + (d.total ?? 0), 0)
-    return { filteredDaily, windowCost }
-  }, [data, range])
+    return `/api/costs?from=${fromISO}&to=${toISO}`
+  }, [range])
+
+  const { data, error, isLoading } = useSWR<CostAnalytics>(apiUrl, fetcher, { refreshInterval: 60_000 })
+
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -50,10 +52,10 @@ export default function CostsPage() {
         <div className="flex items-center justify-between flex-wrap gap-3">
           <p className="text-xs text-muted-foreground">
             {range.usingCustom
-              ? `Fenêtre custom · ${range.days} jours`
+              ? `Custom window · ${range.days} days`
               : range.preset === 'all'
-                ? 'Toutes les données disponibles'
-                : `Derniers ${range.days} jours`}
+                ? 'All available data'
+                : `Last ${range.days} days`}
           </p>
           <DateRangeSelector value={range} onChange={setRange} />
         </div>
@@ -67,9 +69,9 @@ export default function CostsPage() {
           </div>
         )}
 
-        {data && windowed && (
+        {data && (
           <>
-            {/* Hero stat cards — KPI = windowed, subtitle = all-time reference */}
+            {/* Hero stat cards — all KPIs reflect the selected window */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="pb-2">
@@ -77,12 +79,16 @@ export default function CostsPage() {
                     <DollarSign className="w-4 h-4" /> Estimated Cost
                   </CardDescription>
                   <CardTitle className="text-3xl font-bold tabular-nums font-mono text-primary tracking-[-0.02em]">
-                    {formatCost(windowed.windowCost)}
+                    {formatCost(data.total_cost)}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-xs text-muted-foreground">
-                    Sur la période · {formatCost(data.total_cost)} all-time
+                    {range.usingCustom
+                      ? `Window · ${range.days} days`
+                      : range.preset === 'all'
+                        ? 'All-time spend'
+                        : `Last ${range.days} days`}
                   </p>
                 </CardContent>
               </Card>
@@ -90,7 +96,7 @@ export default function CostsPage() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription className="flex items-center gap-2">
-                    <TrendingDown className="w-4 h-4" /> Cache Savings (all-time)
+                    <TrendingDown className="w-4 h-4" /> Cache Savings
                   </CardDescription>
                   <CardTitle className="text-3xl font-bold tabular-nums font-mono text-[var(--success)] tracking-[-0.02em]">
                     {formatCost(data.total_savings)}
@@ -104,7 +110,7 @@ export default function CostsPage() {
               <Card>
                 <CardHeader className="pb-2">
                   <CardDescription className="flex items-center gap-2">
-                    <Banknote className="w-4 h-4" /> Without Cache (all-time)
+                    <Banknote className="w-4 h-4" /> Without Cache
                   </CardDescription>
                   <CardTitle className="text-3xl font-bold tabular-nums font-mono text-[var(--error)]">
                     {formatCost(data.total_cost + data.total_savings)}
@@ -116,17 +122,17 @@ export default function CostsPage() {
               </Card>
             </div>
 
-            {/* Cost over time — filtered by range */}
-            {windowed.filteredDaily.length > 0 && (
+            {/* Cost over time — filtered by range (API already trims daily) */}
+            {data.daily.length > 0 && (
               <Card>
                 <CardHeader>
                   <CardTitle>Cost Over Time</CardTitle>
                   <CardDescription>
-                    Daily estimated spend · {range.usingCustom ? `${range.days} jours (custom)` : range.preset === 'all' ? 'toute la période' : `derniers ${range.days} jours`}
+                    Daily estimated spend · {range.usingCustom ? `${range.days}d window` : range.preset === 'all' ? 'all-time' : `last ${range.days}d`}
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <CostOverTimeChart daily={windowed.filteredDaily} />
+                  <CostOverTimeChart daily={data.daily} />
                 </CardContent>
               </Card>
             )}
@@ -136,7 +142,7 @@ export default function CostsPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Cost by Project</CardTitle>
-                  <CardDescription>Spend breakdown across projects · all-time</CardDescription>
+                  <CardDescription>Spend breakdown across projects · {range.usingCustom ? `${range.days}d window` : range.preset === 'all' ? 'all-time' : `last ${range.days}d`}</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <CostByProjectChart projects={data.by_project} />
@@ -148,7 +154,7 @@ export default function CostsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Per-Model Token Breakdown</CardTitle>
-                <CardDescription>Token usage and cost by model · all-time</CardDescription>
+                <CardDescription>Token usage and cost by model · {range.usingCustom ? `${range.days}d window` : range.preset === 'all' ? 'all-time' : `last ${range.days}d`}</CardDescription>
               </CardHeader>
               <CardContent>
                 <ModelTokenTable models={data.models} />
