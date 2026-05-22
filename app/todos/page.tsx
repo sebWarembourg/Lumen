@@ -9,6 +9,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { DateRangeSelector, DEFAULT_DATE_RANGE } from '@/components/layout/date-range-selector'
 import { Search, AlertTriangle, Circle, CircleDot, CircleCheck } from 'lucide-react'
 
 const fetcher = (url: string) =>
@@ -105,9 +106,16 @@ export default function TodosPage() {
   )
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<FilterType>('all')
+  const [range, setRange] = useState(DEFAULT_DATE_RANGE)
 
   const todos = data?.todos ?? []
-  const allItems: Array<{ file: TodoFile; item: TodoItem }> = todos.flatMap(file =>
+  const todosInRange = (range.preset === 'all' && !range.usingCustom)
+    ? todos
+    : todos.filter(f => {
+        const t = new Date(f.mtime).getTime()
+        return t >= range.from.getTime() && t <= range.to.getTime() + 86_399_999
+      })
+  const allItems: Array<{ file: TodoFile; item: TodoItem }> = todosInRange.flatMap(file =>
     parseTodos(file.data).map(item => ({ file, item }))
   )
 
@@ -145,6 +153,18 @@ export default function TodosPage() {
 
         {data && (
           <>
+            {/* Date range selector */}
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <p className="text-xs text-muted-foreground">
+                {range.usingCustom
+                  ? `Custom window · ${range.days} days`
+                  : range.preset === 'all'
+                    ? 'All available data'
+                    : `Last ${range.days} days`}
+              </p>
+              <DateRangeSelector value={range} onChange={setRange} />
+            </div>
+
             {/* Filter tabs */}
             <Tabs value={filter} onValueChange={v => setFilter(v as FilterType)}>
               <TabsList className="w-full sm:w-auto">

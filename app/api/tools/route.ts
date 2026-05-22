@@ -9,9 +9,33 @@ export const dynamic = 'force-dynamic'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type AnyLine = Record<string, any>
 
-export async function GET() {
-  const sessions = await getSessions()
+export async function GET(request: Request) {
+  const allSessions = await getSessions()
+
+  // Optional ?from=YYYY-MM-DD&to=YYYY-MM-DD window. When provided we keep
+  // only the sessions whose start_time falls within the range; tool counts,
+  // MCP usage, feature adoption, versions and branches are recomputed from
+  // that filtered set so the UI date selector drives the whole page.
+  const url = new URL(request.url)
+  const fromISO = url.searchParams.get('from') ?? undefined
+  const toISO = url.searchParams.get('to') ?? undefined
+  const inRange = (iso: string | undefined | null) => {
+    if (!iso) return false
+    const day = iso.slice(0, 10)
+    if (fromISO && day < fromISO) return false
+    if (toISO && day > toISO) return false
+    return true
+  }
+  const sessions = (fromISO || toISO)
+    ? allSessions.filter(s => inRange(s.start_time))
+    : allSessions
   const totalSessions = sessions.length
+
+  // Build a set of session ids in range so we can filter per-line JSONL reads
+  // (versions + branches) without re-checking timestamps for every event.
+  const inRangeSessionIds = (fromISO || toISO)
+    ? new Set(sessions.map(s => s.session_id))
+    : null
 
   // ── Aggregate tool counts across all sessions ──────────────────────────────
   const toolTotals = new Map<string, number>()
@@ -102,10 +126,15 @@ export async function GET() {
       await Promise.all(
         files.map(async (f) => {
           const sessionId = path.basename(f, '.jsonl')
+          // Skip whole files that are outside the date window (when filtering)
+          if (inRangeSessionIds && !inRangeSessionIds.has(sessionId)) return
           let fileVersion: string | undefined
           let fileDate: string | undefined
 
           await readJSONLLines(f, (line: AnyLine) => {
+            // When a window is requested, ignore lines outside the range so
+            // branch turn counts reflect activity that actually happened in it.
+            if ((fromISO || toISO) && !inRange(line.timestamp)) return
             if (!fileVersion && line.version) {
               fileVersion = line.version
               fileDate = line.timestamp

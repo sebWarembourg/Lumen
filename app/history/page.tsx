@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { DateRangeSelector, DEFAULT_DATE_RANGE } from '@/components/layout/date-range-selector'
 import { Search, AlertTriangle, ChevronLeft, ChevronRight } from 'lucide-react'
 
 const fetcher = (url: string) =>
@@ -34,16 +35,24 @@ export default function HistoryPage() {
   )
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
+  const [range, setRange] = useState(DEFAULT_DATE_RANGE)
 
   const entries = useMemo(() => {
     const all = [...(data?.history ?? [])].reverse()
-    if (!search) return all
+    const inRange = (range.preset === 'all' && !range.usingCustom)
+      ? all
+      : all.filter(e => {
+          if (!e.timestamp) return false
+          const t = e.timestamp
+          return t >= range.from.getTime() && t <= range.to.getTime() + 86_399_999
+        })
+    if (!search) return inRange
     const q = search.toLowerCase()
-    return all.filter(e =>
+    return inRange.filter(e =>
       e.display?.toLowerCase().includes(q) ||
       e.project?.toLowerCase().includes(q)
     )
-  }, [data, search])
+  }, [data, search, range])
 
   const totalPages = Math.ceil(entries.length / PAGE_SIZE)
   const pageEntries = entries.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
@@ -73,6 +82,18 @@ export default function HistoryPage() {
 
         {data && (
           <>
+            {/* Date range selector */}
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <p className="text-xs text-muted-foreground">
+                {range.usingCustom
+                  ? `Custom window · ${range.days} days`
+                  : range.preset === 'all'
+                    ? 'All available data'
+                    : `Last ${range.days} days`}
+              </p>
+              <DateRangeSelector value={range} onChange={setRange} />
+            </div>
+
             {/* Search + count */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <div className="relative flex-1 w-full">

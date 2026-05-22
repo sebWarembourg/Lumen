@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import useSWR from 'swr'
 import { TopBar } from '@/components/layout/top-bar'
+import { DateRangeSelector, DEFAULT_DATE_RANGE } from '@/components/layout/date-range-selector'
 import { cn } from '@/lib/utils'
 import { ChevronDown, ClipboardList } from 'lucide-react'
 
@@ -241,9 +242,16 @@ export default function PlansPage() {
     '/api/plans', fetcher, { refreshInterval: 30_000 }
   )
   const [search, setSearch] = useState('')
+  const [range, setRange] = useState(DEFAULT_DATE_RANGE)
 
   const plans = data?.plans ?? []
-  const filtered = plans.filter(p =>
+  const plansInRange = (range.preset === 'all' && !range.usingCustom)
+    ? plans
+    : plans.filter(p => {
+        const t = new Date(p.mtime).getTime()
+        return t >= range.from.getTime() && t <= range.to.getTime() + 86_399_999
+      })
+  const filtered = plansInRange.filter(p =>
     !search ||
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     p.content.toLowerCase().includes(search.toLowerCase())
@@ -266,6 +274,18 @@ export default function PlansPage() {
 
         {data && (
           <>
+            {/* Date range selector */}
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <p className="text-xs text-muted-foreground">
+                {range.usingCustom
+                  ? `Custom window · ${range.days} days`
+                  : range.preset === 'all'
+                    ? 'All available data'
+                    : `Last ${range.days} days`}
+              </p>
+              <DateRangeSelector value={range} onChange={setRange} />
+            </div>
+
             {/* Search + count */}
             <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center">
               <div className="flex-1 border border-border rounded-lg bg-card w-full focus-within:border-primary/40 transition-colors">

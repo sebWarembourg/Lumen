@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { TopBar } from '@/components/layout/top-bar'
 import { ActivityHeatmap } from '@/components/overview/activity-heatmap'
@@ -7,6 +8,7 @@ import { PeakHoursChart } from '@/components/overview/peak-hours-chart'
 import { DayOfWeekChart } from '@/components/activity/day-of-week-chart'
 import { DisconnectionPanel, type DisconnectionStats } from '@/components/activity/disconnection-panel'
 import { UsageOverTimeChart } from '@/components/overview/usage-over-time-chart'
+import { DateRangeSelector, DEFAULT_DATE_RANGE } from '@/components/layout/date-range-selector'
 import type { DailyActivity } from '@/types/claude'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -59,7 +61,16 @@ function StatTile({
 }
 
 export default function ActivityPage() {
-  const { data, error, isLoading } = useSWR<ActivityData>('/api/activity', fetcher, { refreshInterval: 60_000 })
+  const [range, setRange] = useState(DEFAULT_DATE_RANGE)
+
+  const apiUrl = useMemo(() => {
+    if (range.preset === 'all' && !range.usingCustom) return '/api/activity'
+    const fromISO = range.from.toISOString().slice(0, 10)
+    const toISO = range.to.toISOString().slice(0, 10)
+    return `/api/activity?from=${fromISO}&to=${toISO}`
+  }, [range])
+
+  const { data, error, isLoading } = useSWR<ActivityData>(apiUrl, fetcher, { refreshInterval: 60_000 })
 
   const hourCounts = data
     ? Object.fromEntries(data.hour_counts.map(h => [String(h.hour), h.count]))
@@ -76,6 +87,18 @@ export default function ActivityPage() {
             <AlertDescription>Error loading data: {String(error)}</AlertDescription>
           </Alert>
         )}
+
+        {/* Date range selector */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <p className="text-xs text-muted-foreground">
+            {range.usingCustom
+              ? `Custom window · ${range.days} days`
+              : range.preset === 'all'
+                ? 'All available data'
+                : `Last ${range.days} days`}
+          </p>
+          <DateRangeSelector value={range} onChange={setRange} />
+        </div>
 
         {isLoading && (
           <>

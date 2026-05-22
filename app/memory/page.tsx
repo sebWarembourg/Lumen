@@ -5,6 +5,7 @@ import useSWR, { mutate } from 'swr'
 import { TopBar } from '@/components/layout/top-bar'
 import type { MemoryEntry, MemoryType } from '@/lib/claude-reader'
 import { projectDisplayName, projectShortPath, formatRelativeDate } from '@/lib/decode'
+import { DateRangeSelector, DEFAULT_DATE_RANGE } from '@/components/layout/date-range-selector'
 
 const fetcher = (url: string) =>
   fetch(url).then(r => { if (!r.ok) throw new Error(`API error ${r.status}`); return r.json() })
@@ -216,8 +217,18 @@ export default function MemoryPage() {
   const [filter, setFilter] = useState<FilterType>('all')
   const [search, setSearch] = useState('')
   const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [range, setRange] = useState(DEFAULT_DATE_RANGE)
 
-  const memories = data?.memories ?? []
+  const memories = useMemo(() => {
+    const all = data?.memories ?? []
+    if (range.preset === 'all' && !range.usingCustom) return all
+    const fromMs = range.from.getTime()
+    const toMs = range.to.getTime() + 86_399_999
+    return all.filter(m => {
+      const t = new Date(m.mtime).getTime()
+      return t >= fromMs && t <= toMs
+    })
+  }, [data, range])
 
   const counts = useMemo(() => {
     const c: Record<string, number> = { all: memories.length }
@@ -280,6 +291,18 @@ export default function MemoryPage() {
 
         {data && (
           <>
+            {/* Date range selector */}
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <p className="text-xs font-mono text-muted-foreground">
+                {range.usingCustom
+                  ? `Custom window · ${range.days} days`
+                  : range.preset === 'all'
+                    ? 'All available data'
+                    : `Last ${range.days} days`}
+              </p>
+              <DateRangeSelector value={range} onChange={setRange} />
+            </div>
+
             {/* Stat cards */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               <StatCard value={memories.length}  label="total memories" color="var(--warning)" />

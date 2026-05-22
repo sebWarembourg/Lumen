@@ -1,5 +1,6 @@
 'use client'
 
+import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { TopBar } from '@/components/layout/top-bar'
 import { ToolRankingChart } from '@/components/tools/tool-ranking-chart'
@@ -12,13 +13,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
+import { DateRangeSelector, DEFAULT_DATE_RANGE } from '@/components/layout/date-range-selector'
 import { AlertTriangle, Wrench, Server, Zap, GitBranch } from 'lucide-react'
 
 const fetcher = (url: string) =>
   fetch(url).then(r => { if (!r.ok) throw new Error(`API error ${r.status}`); return r.json() })
 
 export default function ToolsPage() {
-  const { data, error, isLoading } = useSWR<ToolsAnalytics>('/api/tools', fetcher, { refreshInterval: 60_000 })
+  const [range, setRange] = useState(DEFAULT_DATE_RANGE)
+
+  // Pass the window to the API so tool counts, MCP usage, feature adoption,
+  // versions and branches all reflect the selected range. When the preset is
+  // 'all' we omit params so the API returns all-time data.
+  const apiUrl = useMemo(() => {
+    if (range.preset === 'all' && !range.usingCustom) return '/api/tools'
+    const fromISO = range.from.toISOString().slice(0, 10)
+    const toISO = range.to.toISOString().slice(0, 10)
+    return `/api/tools?from=${fromISO}&to=${toISO}`
+  }, [range])
+
+  const { data, error, isLoading } = useSWR<ToolsAnalytics>(apiUrl, fetcher, { refreshInterval: 60_000 })
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -31,6 +45,18 @@ export default function ToolsPage() {
             <AlertDescription>Error loading data: {String(error)}</AlertDescription>
           </Alert>
         )}
+
+        {/* Date range selector */}
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <p className="text-xs text-muted-foreground">
+            {range.usingCustom
+              ? `Custom window · ${range.days} days`
+              : range.preset === 'all'
+                ? 'All available data'
+                : `Last ${range.days} days`}
+          </p>
+          <DateRangeSelector value={range} onChange={setRange} />
+        </div>
 
         {isLoading && (
           <div className="space-y-4">
@@ -55,7 +81,11 @@ export default function ToolsPage() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-xs text-muted-foreground">Total all time</p>
+                  <p className="text-xs text-muted-foreground">
+                    {range.preset === 'all' && !range.usingCustom
+                      ? 'Total all time'
+                      : `Last ${range.days} days`}
+                  </p>
                 </CardContent>
               </Card>
 

@@ -153,12 +153,34 @@ function computeHourCounts(sessions: SessionMeta[]): Array<{ hour: number; count
   return hourCounts.map((count, hour) => ({ hour, count }))
 }
 
-export async function GET() {
-  const [stats, sessions] = await Promise.all([readStatsCache(), getSessions()])
+export async function GET(request: Request) {
+  const [stats, allSessions] = await Promise.all([readStatsCache(), getSessions()])
+
+  // Optional ?from=YYYY-MM-DD&to=YYYY-MM-DD window. When provided, every
+  // aggregate (daily activity, streaks, disconnection, hour/dow counts) is
+  // recomputed over the filtered session set so the UI date selector drives
+  // the whole page consistently. Streaks remain anchored to today by design
+  // (a streak is always “now”-relative) but only count days within the window.
+  const url = new URL(request.url)
+  const fromISO = url.searchParams.get('from') ?? undefined
+  const toISO = url.searchParams.get('to') ?? undefined
+  const inRange = (day: string | undefined) => {
+    if (!day) return false
+    if (fromISO && day < fromISO) return false
+    if (toISO && day > toISO) return false
+    return true
+  }
+  const sessions = (fromISO || toISO)
+    ? allSessions.filter(s => inRange((s.start_time ?? '').slice(0, 10)))
+    : allSessions
+
   const dailyFromSessions = computeDailyActivityFromSessions(sessions)
-  const dailyActivity = stats
+  const mergedDaily = stats
     ? mergeDailyActivity(stats.dailyActivity ?? [], dailyFromSessions)
     : dailyFromSessions
+  const dailyActivity = (fromISO || toISO)
+    ? mergedDaily.filter(d => inRange(d.date))
+    : mergedDaily
 
   // Day-of-week counts from session timestamps
   const dowCounts: number[] = [0, 0, 0, 0, 0, 0, 0] // Sun=0..Sat=6
