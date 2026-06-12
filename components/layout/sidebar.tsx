@@ -82,12 +82,16 @@ function SidebarContents({
         collapsed ? 'justify-center px-2 py-4' : 'justify-between px-4 pt-5 pb-4',
       )}>
         {!collapsed && (
-          <div className="flex flex-col leading-tight select-none gap-0.5">
-            <span className="text-[15px] font-medium tracking-[-0.015em] text-sidebar-foreground">
-              Claude
-            </span>
-            <span className="font-mono text-[10px] font-medium tracking-[0.14em] uppercase text-sidebar-accent-foreground">
-              analytics
+          <div className="flex flex-col leading-tight select-none">
+            <span
+              className="font-mono text-[15px] font-medium tracking-[0.14em] uppercase"
+              style={{
+                background: 'linear-gradient(180deg, #fff 20%, #bdb4ff)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              Lumen
             </span>
           </div>
         )}
