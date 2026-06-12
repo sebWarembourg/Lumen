@@ -1,6 +1,6 @@
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="./public/home.png" />
-  <source media="(prefers-color-scheme: light)" srcset="./public/home-light.png" />
+  <source media="(prefers-color-scheme: light)" srcset="./public/home_light.png" />
   <img alt="Lumen dashboard" src="./public/home.png" width="100%" />
 </picture>
 
