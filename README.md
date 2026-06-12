@@ -1,7 +1,7 @@
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="./public/overview-dark.png" />
+  <source media="(prefers-color-scheme: dark)" srcset="./public/home.png" />
   <source media="(prefers-color-scheme: light)" srcset="./public/overview-light.png" />
-  <img alt="Lumen dashboard" src="./public/dashboard-dark.png" width="100%" />
+  <img alt="Lumen dashboard" src="./public/home.png" width="100%" />
 </picture>
 
 # Lumen
