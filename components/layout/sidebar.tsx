@@ -83,14 +83,7 @@ function SidebarContents({
       )}>
         {!collapsed && (
           <div className="flex flex-col leading-tight select-none">
-            <span
-              className="font-mono text-[15px] font-medium tracking-[0.14em] uppercase"
-              style={{
-                background: 'linear-gradient(180deg, #fff 20%, #bdb4ff)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
-            >
+            <span className="lumen-title font-mono text-[15px] font-medium tracking-[0.14em] uppercase">
               Lumen
             </span>
           </div>

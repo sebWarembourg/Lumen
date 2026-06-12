@@ -383,3 +383,66 @@ header[data-glass="sticky"] {
   font-size: 12px !important;
   letter-spacing: 0.04em !important;
 }
+
+/* ─── Home landing — theme-aware gradients (CSS > inline to avoid repaint flash) ── */
+.home-hero-bg {
+  background: radial-gradient(120% 140% at 0% 0%, #dddaf8 0%, #eeeef8 38%, transparent 78%);
+}
+.dark .home-hero-bg {
+  background: radial-gradient(120% 140% at 0% 0%, #2a2360 0%, #14122e 38%, transparent 78%);
+}
+
+.home-hero-number {
+  background: linear-gradient(180deg, #1a1650 20%, #5b52c8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: block;
+}
+.dark .home-hero-number {
+  background: linear-gradient(180deg, #fff 30%, #bdb4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+.home-hero-accent {
+  color: #5b52c8;
+}
+.dark .home-hero-accent {
+  color: #9d93ff;
+}
+
+.wellbeing-glow {
+  background: linear-gradient(135deg, #eeeef8, #f5f5fc);
+  border-color: #c7c4f0;
+}
+.dark .wellbeing-glow {
+  background: linear-gradient(135deg, #1a1640, #101017);
+  border-color: #3a3170;
+}
+
+.wellbeing-glow-value {
+  color: #4b40b0;
+}
+.dark .wellbeing-glow-value {
+  color: #9d93ff;
+}
+
+.lumen-title {
+  background: linear-gradient(180deg, #1a1650 20%, #5b52c8);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  display: inline-block;
+}
+.dark .lumen-title {
+  background: linear-gradient(180deg, #fff 20%, #bdb4ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}

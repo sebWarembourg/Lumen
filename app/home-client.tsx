@@ -7,7 +7,6 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { formatCo2 } from '@/lib/impact'
-
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface HomeData {
@@ -59,32 +58,22 @@ export function HomeClient() {
     <div className="flex flex-col">
 
       {/* ── Hero ── */}
-      <div
-        className="relative px-14 pb-12 pt-16 border-b border-border"
-        style={{
-          background: 'radial-gradient(120% 140% at 0% 0%, #2a2360 0%, #14122e 38%, transparent 78%)',
-        }}
-      >
+      <div className="home-hero-bg relative px-14 pb-12 pt-16 border-b border-border">
         <p className="absolute right-14 top-14 text-right text-sm text-muted-foreground max-w-[220px] leading-relaxed">
           Comprendre ton usage est la clé pour l&apos;améliorer.
         </p>
 
-        <p className="font-mono text-[11px] tracking-[0.22em] uppercase mb-1" style={{ color: '#9d93ff' }}>
+        <p className="home-hero-accent font-mono text-[11px] tracking-[0.22em] uppercase mb-1">
           Ta semaine en un chiffre
         </p>
 
-        {isLoading || !d ? (
+        {!d ? (
           <Skeleton className="h-36 w-64 mb-3" />
         ) : (
           <Link href="/overview">
             <p
-              className="font-bold leading-none tracking-[-6px] select-none cursor-pointer hover:opacity-80 transition-opacity"
-              style={{
-                fontSize: 'clamp(96px, 14vw, 160px)',
-                background: 'linear-gradient(180deg, #fff 30%, #bdb4ff)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-              }}
+              className="home-hero-number font-bold leading-none tracking-[-6px] select-none cursor-pointer hover:opacity-80 transition-opacity"
+              style={{ fontSize: 'clamp(96px, 14vw, 160px)' }}
             >
               {d.week.messages.toLocaleString('fr-FR')}
             </p>
@@ -272,16 +261,19 @@ function WellbeingCard({ icon: Icon, label, value, sub, glow = false, valueColor
 }) {
   const inner = (
     <div
-      className={cn('border rounded-xl px-6 py-6 space-y-4 h-full', glow ? 'border-[#3a3170]' : 'border-border', href && 'hover:border-primary/50 transition-colors cursor-pointer')}
-      style={glow ? { background: 'linear-gradient(135deg, #1a1640, #101017)' } : undefined}
+      className={cn(
+        'border rounded-xl px-6 py-6 space-y-4 h-full',
+        glow ? 'wellbeing-glow' : 'border-border',
+        href && 'hover:border-primary/50 transition-colors cursor-pointer',
+      )}
     >
       <p className="font-mono text-[11px] tracking-[0.15em] uppercase text-muted-foreground flex items-center gap-2">
         <Icon className="w-3.5 h-3.5" />
         {label}
       </p>
       <p
-        className="font-mono text-[46px] font-bold tabular-nums tracking-[-0.03em] leading-none"
-        style={{ color: valueColor ?? (glow ? '#9d93ff' : undefined) }}
+        className={cn('font-mono text-[46px] font-bold tabular-nums tracking-[-0.03em] leading-none', glow && !valueColor && 'wellbeing-glow-value')}
+        style={valueColor ? { color: valueColor } : undefined}
       >
         {value}
       </p>
