@@ -1,14 +1,14 @@
 import { TopBar } from '@/components/layout/top-bar'
-import { OverviewClient } from './overview-client'
+import { HomeClient } from './home-client'
 
-export default function OverviewPage() {
+export default function HomePage() {
   return (
     <div className="flex flex-col min-h-screen">
       <TopBar
-        title="Overview"
-        subtitle="Local monitoring · refreshes every 60s"
+        title="Home"
+        subtitle="Comprendre ton usage est la clé pour l'améliorer."
       />
-      <OverviewClient />
+      <HomeClient />
     </div>
   )
 }

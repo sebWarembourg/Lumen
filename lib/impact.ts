@@ -5,6 +5,16 @@
 // Energy / token — back-solved from Epoch AI ChatGPT data (0.3 Wh for 500 output
 // tokens ≈ 2.5 Wh for 10k input + 530 output) and Anthropic pricing ratios
 // (output costs 5× input, cache reads cost 10× less than input).
+//
+// NOTE — Alternative methodology (gwittebolle/claude-carbon, Jegham et al. 2025):
+//   Peer-reviewed study measuring Sonnet inference on AWS directly.
+//   Their factors: Sonnet input 190 gCO₂e/MTok, output 1140 gCO₂e/MTok (6× ratio).
+//   → ~50% higher on input, ~80% higher on output vs our numbers.
+//   Model multipliers: Opus 3× Sonnet (vs our 2.5×), Haiku 0.5× (vs our 0.4×).
+//   Cache read factor: 0.08× input (vs our 0.10× — billing ratio proxy).
+//   Caveat: only Sonnet is measured; Opus/Haiku/Fable are extrapolated in both approaches.
+//   Neither has access to Anthropic's actual hardware config → both are order-of-magnitude.
+//   Worth revisiting if Anthropic publishes scope-2 data or a new paper measures Opus directly.
 
 export const TOKEN_ENERGY_WH = {
   input: 0.00039,        // 390 Wh / MTok — baseline
@@ -31,8 +41,8 @@ export const REGION_LABELS: Record<Region, string> = {
 export const INFRA = {
   /** Power Usage Effectiveness — AWS datacenter overhead */
   pue: 1.14,
-  /** Water Usage Effectiveness — L / kWh ≡ mL / Wh */
-  water_ml_per_wh: 1.8,
+  /** Water Usage Effectiveness — AWS 0.18 L/kWh = 0.18 mL/Wh */
+  water_ml_per_wh: 0.18,
 } as const
 
 /** Model-size energy multiplier, relative to Sonnet baseline. */

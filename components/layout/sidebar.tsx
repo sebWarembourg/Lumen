@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  LayoutDashboard, FolderOpen, MessageSquare, DollarSign, Leaf,
+  Home, LayoutDashboard, FolderOpen, MessageSquare, DollarSign, Leaf,
   Wrench, Activity, History, CheckSquare, FileText,
   Brain, Settings, Download, Moon, Sun, PanelLeftClose, PanelLeft,
 } from 'lucide-react'
@@ -14,7 +14,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from '@/lib/utils'
 
 const NAV = [
-  { href: '/',         label: 'Overview',  icon: LayoutDashboard },
+  { href: '/',         label: 'Home',      icon: Home            },
+  { href: '/overview', label: 'Overview',  icon: LayoutDashboard },
   { href: '/projects', label: 'Projects',  icon: FolderOpen      },
   { href: '/sessions', label: 'Sessions',  icon: MessageSquare   },
   { href: '/costs',    label: 'Costs',     icon: DollarSign      },
