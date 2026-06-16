@@ -31,6 +31,7 @@
     "lib",
     "types",
     "public",
+    "scripts",
     "next.config.*",
     "tsconfig.json",
     "postcss.config.*",
@@ -40,7 +41,9 @@
     "dev": "next dev -p 3333 --webpack",
     "build": "next build",
     "start": "next start -p 3333",
-    "lint": "eslint"
+    "lint": "eslint",
+    "setup": "bash scripts/setup.sh",
+    "postinstall": "bash scripts/setup.sh"
   },
   "dependencies": {
     "@tailwindcss/postcss": "^4",
