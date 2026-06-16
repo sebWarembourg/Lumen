@@ -4,6 +4,7 @@ import useSWR from 'swr'
 import Link from 'next/link'
 import { Coffee, Leaf, ArrowRight } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
+import { LoadingOverlay } from '@/components/layout/loading-overlay'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { formatCo2 } from '@/lib/impact'
@@ -30,8 +31,8 @@ const fetcher = (url: string) => fetch(url).then(r => r.json())
 
 function formatDate(iso: string): string {
   const [, month, day] = iso.split('-')
-  const months = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc']
-  return `${parseInt(day!)} ${months[parseInt(month!) - 1]}`
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  return `${months[parseInt(month!) - 1]} ${parseInt(day!)}`
 }
 
 function formatCost(usd: number): string {
@@ -44,7 +45,7 @@ function weekDateRange(): string {
   const now = new Date()
   const start = new Date(now)
   start.setDate(now.getDate() - 6)
-  return `du ${formatDate(start.toISOString().slice(0, 10))} au ${formatDate(now.toISOString().slice(0, 10))}`
+  return `${formatDate(start.toISOString().slice(0, 10))} – ${formatDate(now.toISOString().slice(0, 10))}`
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
@@ -56,15 +57,16 @@ export function HomeClient() {
 
   return (
     <div className="flex flex-col">
+      <LoadingOverlay isLoading={!d && isLoading} label="Lumen" />
 
       {/* ── Hero ── */}
       <div className="home-hero-bg relative px-14 pb-12 pt-16 border-b border-border">
         <p className="absolute right-14 top-14 text-right text-sm text-muted-foreground max-w-[220px] leading-relaxed">
-          Comprendre ton usage est la clé pour l&apos;améliorer.
+          Understanding your usage is the key to improving it.
         </p>
 
         <p className="home-hero-accent font-mono text-[11px] tracking-[0.22em] uppercase mb-1">
-          Ta semaine en un chiffre
+          This week in one number
         </p>
 
         {!d ? (
@@ -75,13 +77,13 @@ export function HomeClient() {
               className="home-hero-number font-bold leading-none tracking-[-6px] select-none cursor-pointer hover:opacity-80 transition-opacity"
               style={{ fontSize: 'clamp(96px, 14vw, 160px)' }}
             >
-              {d.week.messages.toLocaleString('fr-FR')}
+              {d.week.messages.toLocaleString('en-US')}
             </p>
           </Link>
         )}
 
         <p className="text-xl text-muted-foreground mt-2 font-light">
-          messages échangés · {weekDateRange()}
+          messages exchanged · {weekDateRange()}
         </p>
       </div>
 
@@ -99,9 +101,9 @@ export function HomeClient() {
         ) : (
           <>
             <KpiItem value={String(d.week.sessions)} label="sessions" first />
-            <KpiItem value={`${d.week.active_days}/7`} label="jours actifs" accentValue />
-            <KpiItem value={`${d.cache_efficiency_pct}%`} label="tokens en cache" accentValue />
-            <KpiItem value={formatCost(d.week.cost_usd)} label="coût semaine" />
+            <KpiItem value={`${d.week.active_days}/7`} label="active days" accentValue />
+            <KpiItem value={`${d.cache_efficiency_pct}%`} label="tokens cached" accentValue />
+            <KpiItem value={formatCost(d.week.cost_usd)} label="week cost" />
           </>
         )}
       </div>
@@ -117,22 +119,22 @@ export function HomeClient() {
         ) : (
           <>
             <HighlightCard
-              label="Top projet"
+              label="Top project"
               value={d.top_project?.name ?? '—'}
-              sub={d.top_project ? `${d.top_project.sessions} sessions` : 'Aucun projet actif'}
+              sub={d.top_project ? `${d.top_project.sessions} sessions` : 'No active project'}
               href="/projects"
             />
             <HighlightCard
               label="Coût"
               value={formatCost(d.week.cost_usd)}
-              sub="cette semaine"
+              sub="this week"
               trend={d.week.cost_delta_pct}
               href="/costs"
             />
             <HighlightCard
               label="Cache"
               value={`${d.cache_efficiency_pct}%`}
-              sub="des tokens depuis le cache"
+              sub="of tokens from cache"
               bar={d.cache_efficiency_pct}
               href="/costs"
             />
@@ -151,25 +153,25 @@ export function HomeClient() {
           <>
             <WellbeingCard
               icon={Coffee}
-              label="Dernière déconnexion"
+              label="Last disconnection"
               value={
                 d.last_disconnection
-                  ? `${d.last_disconnection.days} jour${d.last_disconnection.days > 1 ? 's' : ''}`
+                  ? `${d.last_disconnection.days} day${d.last_disconnection.days > 1 ? 's' : ''}`
                   : '—'
               }
               sub={
                 d.last_disconnection
                   ? `${formatDate(d.last_disconnection.from)} → ${formatDate(d.last_disconnection.to)}`
-                  : 'Aucune pause de +24h détectée'
+                  : 'No +24h break detected'
               }
               glow
               href="/activity"
             />
             <WellbeingCard
               icon={Leaf}
-              label="Empreinte CO₂"
+              label="CO₂ footprint"
               value={formatCo2(d.co2_all_time_g)}
-              sub={`≈ ${d.co2_car_km.toLocaleString('fr-FR')} km en voiture essence`}
+              sub={`≈ ${d.co2_car_km.toLocaleString('en-US')} km by petrol car`}
               valueColor="#6ee7a0"
               href="/impact"
             />
@@ -181,7 +183,7 @@ export function HomeClient() {
       <div className="px-14 pb-14 -mt-6">
         <Button variant="outline" asChild>
           <Link href="/overview" className="flex items-center gap-2">
-            Voir le détail
+            View details
             <ArrowRight className="w-4 h-4" />
           </Link>
         </Button>

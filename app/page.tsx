@@ -6,7 +6,7 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen">
       <TopBar
         title="Home"
-        subtitle="Comprendre ton usage est la clé pour l'améliorer."
+        subtitle="Your usage in a nutshell."
       />
       <HomeClient />
     </div>

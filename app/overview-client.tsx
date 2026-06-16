@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react'
 import useSWR from 'swr'
 import { BarChart3, PieChart, Clock } from 'lucide-react'
+import { LoadingOverlay } from '@/components/layout/loading-overlay'
 import { UsageOverTimeChart } from '@/components/overview/usage-over-time-chart'
 import { ModelBreakdownDonut } from '@/components/overview/model-breakdown-donut'
 import { ProjectActivityDonut } from '@/components/overview/project-activity-donut'
@@ -118,24 +119,7 @@ export function OverviewClient() {
 
   // ── Loading ──────────────────────────────────────────────────────────────
   if (isLoading || !data || !data.computed) {
-    return (
-      <div className="px-6 py-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div className="space-y-2">
-            <Skeleton className="h-7 w-32" />
-            <Skeleton className="h-4 w-56" />
-          </div>
-          <Skeleton className="h-9 w-48" />
-        </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6">
-          <Skeleton className="h-72 rounded-xl" />
-          <Skeleton className="h-72 rounded-xl" />
-        </div>
-      </div>
-    )
+    return <LoadingOverlay isLoading={true} label="Overview" />
   }
 
   if (error) {

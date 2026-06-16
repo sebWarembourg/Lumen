@@ -3,6 +3,7 @@
 import useSWR from 'swr'
 import { TopBar } from '@/components/layout/top-bar'
 import { SessionTable } from '@/components/sessions/session-table'
+import { LoadingOverlay } from '@/components/layout/loading-overlay'
 import type { SessionWithFacet } from '@/types/claude'
 
 const fetcher = (url: string) =>
@@ -17,20 +18,14 @@ export default function SessionsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <LoadingOverlay isLoading={!data && isLoading} label="Sessions" />
       <TopBar
         title="Claude Code Analytics · Sessions"
-        subtitle={data ? `${data.total} total sessions` : 'loading...'}
+        subtitle={data ? `${data.total} total sessions` : undefined}
       />
       <div className="p-6">
         {error && (
           <p className="text-[#f87171] text-sm font-mono">Error: {String(error)}</p>
-        )}
-        {isLoading && (
-          <div className="space-y-2">
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="h-10 bg-muted rounded animate-pulse" />
-            ))}
-          </div>
         )}
         {data && <SessionTable sessions={data.sessions} />}
       </div>

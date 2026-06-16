@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { TopBar } from '@/components/layout/top-bar'
+import { LoadingOverlay } from '@/components/layout/loading-overlay'
 import { CostOverTimeChart } from '@/components/costs/cost-over-time-chart'
 import { CostByProjectChart } from '@/components/costs/cost-by-project-chart'
 import { ModelTokenTable } from '@/components/costs/model-token-table'
@@ -38,6 +39,7 @@ export default function CostsPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <LoadingOverlay isLoading={!data && isLoading} label="Costs" />
       <TopBar title="Costs" subtitle="Estimated spend · calculated locally from token counts in ~/.claude/" />
       <div className="p-6 space-y-6">
 

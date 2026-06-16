@@ -13,6 +13,7 @@ import type { DailyActivity } from '@/types/claude'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Alert, AlertDescription } from '@/components/ui/alert'
+import { LoadingOverlay } from '@/components/layout/loading-overlay'
 import { AlertTriangle, Flame, CalendarDays, BarChart3, Clock, Zap, TrendingUp, Trophy, Brain } from 'lucide-react'
 
 const fetcher = (url: string) =>
@@ -78,6 +79,7 @@ export default function ActivityPage() {
 
   return (
     <div className="flex flex-col min-h-screen">
+      <LoadingOverlay isLoading={!data && isLoading} label="Activity" />
       <TopBar title="Activity" subtitle="Patterns, streaks, and peak hours" />
       <div className="w-full space-y-4 p-4 md:p-6">
 
